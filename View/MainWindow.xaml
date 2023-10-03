@@ -23,13 +23,22 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <TextBlock  Grid.Row="0" Text="Hello World!" HorizontalAlignment="Center"/>
+                    <TextBox 
+                        x:Name="tbSearch"
+                        Grid.Row="0" Text="{Binding DataContext.Text, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"/>
                     <Button Grid.Row="1"  Width="100px"
-  Content="{materialDesign:PackIcon AirplaneTakeoff}"
-  IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
-  ToolTip="Icon" />
+                      Content="{materialDesign:PackIcon AirplaneTakeoff}"
+                      IsEnabled="{Binding DataContext.ControlsEnabled,
+                        RelativeSource={RelativeSource FindAncestor,
+                        AncestorType=Window}}"
+                      ToolTip="Icon"
+                            Command="{Binding DataContext.ButtonCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
+                            CommandParameter="{Binding Text, ElementName=tbSearch}"/>
+                    <Image Grid.Row="2" 
+                           Source="{Binding DataContext.Image, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"/>
                 </Grid>
             </materialDesign:Card.Content>
         </materialDesign:Card>
