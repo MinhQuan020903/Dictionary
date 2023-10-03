@@ -21,14 +21,18 @@
             <materialDesign:Card.Content>
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="2*"/>
                     </Grid.RowDefinitions>
 
                     <TextBox 
                         x:Name="tbSearch"
-                        Grid.Row="0" Text="{Binding DataContext.Text, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"/>
+                        Grid.Row="0" 
+                        Height="50px"
+                        Width ="200px"
+                        BorderThickness="2px"
+                        Text="{Binding DataContext.Text, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"/>
                     <Button Grid.Row="1"  Width="100px"
                       Content="{materialDesign:PackIcon AirplaneTakeoff}"
                       IsEnabled="{Binding DataContext.ControlsEnabled,
@@ -36,9 +40,12 @@
                         AncestorType=Window}}"
                       ToolTip="Icon"
                             Command="{Binding DataContext.ButtonCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
-                            CommandParameter="{Binding Text, ElementName=tbSearch}"/>
-                    <Image Grid.Row="2" 
-                           Source="{Binding DataContext.Image, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"/>
+                            CommandParameter="{Binding Image, ElementName=imgSearch}"/>
+                    <Image 
+                        x:Name="imgSearch"
+                        Grid.Row="2" 
+                        Height="200px"
+                        Source="{Binding DataContext.Image, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"/>
                 </Grid>
             </materialDesign:Card.Content>
         </materialDesign:Card>
