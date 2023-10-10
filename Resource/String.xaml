@@ -1,0 +1,5 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+                    xmlns:sys="clr-namespace:System;assembly=netstandard">
+    <sys:String x:Key="UnsplashApiKey">F7N8sz1bB94PVtZhq4MQTp4YvwKOh-UNMk2i6M_joS0</sys:String>
+</ResourceDictionary>

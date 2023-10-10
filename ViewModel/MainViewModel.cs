@@ -51,24 +51,30 @@ namespace Dictionary.ViewModel
 
         private async void ButtonCommandExecute(object obj)
         {
+            //Check if text box is empty
+            if (Text == null || Text == "")
+            {
+                MessageBox.Show("Please enter a word");
+            } else
+            {
+                string unsplashApiKey = App.Current.Resources["UnsplashApiKey"].ToString();
                 //Connect to Unsplash API with API credential
-                var client = new UnsplasharpClient("F7N8sz1bB94PVtZhq4MQTp4YvwKOh-UNMk2i6M_joS0");
-                try 
+                var client = new UnsplasharpClient(unsplashApiKey);
+                try
                 {
-                        //Search images based from text
-                        var photosFound = await client.SearchPhotos(Text,1, 1);
-                        //Get first image
-                        string url = photosFound[0].Urls.Small;
-                        //Assign imageUrl to Image component
-                        Image = url;
-                        
-                } catch (Exception e)
+                    //Search images based from text
+                    var photosFound = await client.SearchPhotos(Text, 1, 1);
+                    //Get first image
+                    string url = photosFound[0].Urls.Small;
+                    //Assign imageUrl to Image component
+                    Image = url;
+
+                }
+                catch (Exception e)
                 {
                     Console.WriteLine(e.ToString());
-                } 
-                
-
-            
+                }
+            }
         }
 
     }
