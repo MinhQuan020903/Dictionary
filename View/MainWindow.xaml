@@ -34,6 +34,7 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="2*"/>
                             <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <TextBox 
                                 x:Name="tbSearch"
@@ -42,14 +43,24 @@
                                 Width ="200px"
                                 BorderThickness="2px"
                                 Text="{Binding DataContext.Text, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"/>
-                        <Button Grid.Column="1"  Width="100px"
-                              Content="{materialDesign:PackIcon Magnify}"
+                        <Button Grid.Column="1"  Width="150px"
                               IsEnabled="{Binding DataContext.ControlsEnabled,
                                 RelativeSource={RelativeSource FindAncestor,
                                 AncestorType=Window}}"
                               ToolTip="Icon"
                                 Command="{Binding DataContext.ButtonCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
-                                CommandParameter="{Binding Image, ElementName=imgSearch}"/>
+                                CommandParameter="{Binding Image, ElementName=imgSearch}">
+                            <TextBlock>Search Image</TextBlock>
+                        </Button>
+                        <Button Grid.Column="3"  Width="150px"
+                              IsEnabled="{Binding DataContext.ControlsEnabled,
+                                RelativeSource={RelativeSource FindAncestor,
+                                AncestorType=Window}}"
+                              ToolTip="Icon"
+                                Command="{Binding DataContext.ButtonTranslatorCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
+                                CommandParameter="{Binding text, ElementName=tbSearch}">          
+                            <TextBlock>Translate</TextBlock>
+                        </Button>
                     </Grid>
 
                     <Border Grid.Row="1">
@@ -57,7 +68,7 @@
                                x:Name="tblkTranslate"
                                Height="50px"
                                Width="300px"
-                                 Text="{Binding DataContext.Translate, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
+                                 Text="{Binding DataContext.TranslatedText, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
                                />
                     </Border>
 

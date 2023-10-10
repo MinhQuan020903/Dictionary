@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Model\Translation.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Azure.Core" Version="1.35.0" />
     <PackageReference Include="Azure.Identity" Version="1.10.2" />
     <PackageReference Include="MaterialDesignThemes" Version="4.9.0" />

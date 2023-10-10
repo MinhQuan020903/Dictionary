@@ -1,9 +1,11 @@
 ﻿using Dictionary.Model;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection.Metadata;
 using System.Text;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -27,6 +29,16 @@ namespace Dictionary.ViewModel
                 OnPropertyChanged(nameof(Text));
             }
         }
+        private string _translatedText;
+        public string TranslatedText
+        {
+            get => _translatedText;
+            set
+            {
+                _translatedText = value;
+                OnPropertyChanged(nameof(TranslatedText));
+            }
+        }
         private string _image;
         public string Image
         {
@@ -39,6 +51,7 @@ namespace Dictionary.ViewModel
         }
         public ICommand ButtonCommand { get; set; }
         public ICommand ButtonAudioCommand { get; set;}
+        public ICommand ButtonTranslatorCommand { get; set; }
 
         public MainViewModel()
         {
@@ -49,6 +62,7 @@ namespace Dictionary.ViewModel
             //Init button command
             ButtonCommand = new RelayCommand<object>(ButtonCommandCanExecute, ButtonCommandExecute);
             ButtonAudioCommand = new RelayCommand<object>(ButtonCommandAudioCanExecute, ButtonCommandAudioExecute);
+            ButtonTranslatorCommand = new RelayCommand<object>(ButtonCommandTranslatorCanExecute, ButtonCommandTranslatorExecute);
 
         }
 
@@ -80,6 +94,45 @@ namespace Dictionary.ViewModel
         {
             Console.Write(Text);
             await TextToSpeechAPI.TextToSpeech(Text);
+        }
+
+        private bool ButtonCommandTranslatorCanExecute(object obj)
+        {
+            return true;
+        }
+        private async void ButtonCommandTranslatorExecute(object obj)
+        {
+            //Check if text box is empty
+            if (Text == null || Text == "")
+            {
+                MessageBox.Show("Please enter a word");
+            }
+            else
+            {
+                //Translate text
+                string translatedText = await TranslateAPI.Translate(Text);
+                // Parse the JSON array
+                JArray jsonArray = JArray.Parse(translatedText);
+                // Check if the array contains any items
+                if (jsonArray.Count > 0)
+                {
+                    // Access the first item in the array
+                    JObject firstObject = jsonArray[0] as JObject;
+
+                    if (firstObject != null)
+                    {
+                        // Use SelectToken to get the "text" property within the first object
+                        JToken textToken = firstObject.SelectToken("translations[0].text");
+
+                        // Check if the property exists and get its value
+                        if (textToken != null)
+                        {
+                            TranslatedText = textToken.ToString();
+                            // 'translatedText' now contains the value of the "text" property
+                        }
+                    }
+                }
+            }
         }
     }
 }
