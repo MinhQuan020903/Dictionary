@@ -1,17 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace Dictionary
 {
@@ -22,6 +10,14 @@ namespace Dictionary
     {
         public MainWindow()
         {
+            // Merge the String.xaml resource dictionary into application resources
+            this.Resources.MergedDictionaries.Add(new ResourceDictionary());
+            this.Resources.MergedDictionaries[0].Source = new Uri("Resource/String.xaml", UriKind.Relative);
+
+            // Set environment variables here
+            Environment.SetEnvironmentVariable("SPEECH_KEY", Application.Current.Resources["AzureTextToSpeechKey"].ToString());
+            Environment.SetEnvironmentVariable("SPEECH_REGION", Application.Current.Resources["AzureTextToSpeechRegion"].ToString());
+
             InitializeComponent();
         }
     }
