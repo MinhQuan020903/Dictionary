@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Dictionary.Model;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection.Metadata;
@@ -14,6 +15,7 @@ namespace Dictionary.ViewModel
     public class MainViewModel : BaseViewModel
 
     {
+
         //Data binding for text box and image
         private string _text;
         public string Text
@@ -36,11 +38,17 @@ namespace Dictionary.ViewModel
             }
         }
         public ICommand ButtonCommand { get; set; }
+        public ICommand ButtonAudioCommand { get; set;}
 
         public MainViewModel()
         {
+            /*//Set environment variable for Azure Speech API
+            Environment.SetEnvironmentVariable("SPEECH_KEY", App.Current.Resources["AzureTextToSpeechKey"].ToString());
+            Environment.SetEnvironmentVariable("SPEECH_REGION", "southeastasia");*/
+
             //Init button command
             ButtonCommand = new RelayCommand<object>(ButtonCommandCanExecute, ButtonCommandExecute);
+            ButtonAudioCommand = new RelayCommand<object>(ButtonCommandAudioCanExecute, ButtonCommandAudioExecute);
 
         }
 
@@ -59,23 +67,19 @@ namespace Dictionary.ViewModel
             {
                 string unsplashApiKey = App.Current.Resources["UnsplashApiKey"].ToString();
                 //Connect to Unsplash API with API credential
-                var client = new UnsplasharpClient(unsplashApiKey);
-                try
-                {
-                    //Search images based from text
-                    var photosFound = await client.SearchPhotos(Text, 1, 1);
-                    //Get first image
-                    string url = photosFound[0].Urls.Small;
-                    //Assign imageUrl to Image component
-                    Image = url;
-
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e.ToString());
-                }
+                Image = await TextToImageAPI.GetImageFromText(Text);
             }
         }
 
+        private bool ButtonCommandAudioCanExecute(object obj)
+        {
+            return true;
+        }
+
+        private async void ButtonCommandAudioExecute(object obj)
+        {
+            Console.Write(Text);
+            await TextToSpeechAPI.TextToSpeech(Text);
+        }
     }
 }

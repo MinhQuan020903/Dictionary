@@ -19,33 +19,65 @@
     <Grid>
         <materialDesign:Card>
             <materialDesign:Card.Content>
-                <Grid>
+                <Grid >
+
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="2*"/>
+                        <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
-                    <TextBox 
-                        x:Name="tbSearch"
-                        Grid.Row="0" 
-                        Height="50px"
-                        Width ="200px"
-                        BorderThickness="2px"
-                        Text="{Binding DataContext.Text, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"/>
-                    <Button Grid.Row="1"  Width="100px"
-                      Content="{materialDesign:PackIcon AirplaneTakeoff}"
-                      IsEnabled="{Binding DataContext.ControlsEnabled,
-                        RelativeSource={RelativeSource FindAncestor,
-                        AncestorType=Window}}"
-                      ToolTip="Icon"
-                            Command="{Binding DataContext.ButtonCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
-                            CommandParameter="{Binding Image, ElementName=imgSearch}"/>
+
+
+                    <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox 
+                                x:Name="tbSearch"
+                                Grid.Column="0" 
+                                Height="50px"
+                                Width ="200px"
+                                BorderThickness="2px"
+                                Text="{Binding DataContext.Text, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"/>
+                        <Button Grid.Column="1"  Width="100px"
+                              Content="{materialDesign:PackIcon Magnify}"
+                              IsEnabled="{Binding DataContext.ControlsEnabled,
+                                RelativeSource={RelativeSource FindAncestor,
+                                AncestorType=Window}}"
+                              ToolTip="Icon"
+                                Command="{Binding DataContext.ButtonCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
+                                CommandParameter="{Binding Image, ElementName=imgSearch}"/>
+                    </Grid>
+
+                    <Border Grid.Row="1">
+                        <TextBlock Grid.Row="1" 
+                               x:Name="tblkTranslate"
+                               Height="50px"
+                               Width="300px"
+                                 Text="{Binding DataContext.Translate, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
+                               />
+                    </Border>
+
+
                     <Image 
                         x:Name="imgSearch"
                         Grid.Row="2" 
                         Height="200px"
                         Source="{Binding DataContext.Image, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"/>
+                    
+                    <Button 
+                        x:Name="btnAudio"
+                        Grid.Row="3"  Width="100px"
+                        Content="{materialDesign:PackIcon VolumeVibrate}"
+                        IsEnabled="{Binding DataContext.ControlsEnabled,
+                        RelativeSource={RelativeSource FindAncestor,
+                        AncestorType=Window}}"
+                        ToolTip="Icon"
+                            Command="{Binding DataContext.ButtonAudioCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
+                            CommandParameter="{Binding Text, ElementName=tbSearch}"/>
                 </Grid>
             </materialDesign:Card.Content>
         </materialDesign:Card>
