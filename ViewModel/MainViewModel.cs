@@ -2,6 +2,7 @@
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using System.Reflection.Metadata;
 using System.Text;
@@ -49,6 +50,7 @@ namespace Dictionary.ViewModel
                 OnPropertyChanged(nameof(Image));
             }
         }
+        public ICommand LostFocusCommand { get; set; }
         public ICommand ButtonCommand { get; set; }
         public ICommand ButtonAudioCommand { get; set; }
         public ICommand ButtonTranslatorCommand { get; set; }
@@ -60,10 +62,14 @@ namespace Dictionary.ViewModel
             Environment.SetEnvironmentVariable("SPEECH_KEY", App.Current.Resources["AzureTextToSpeechKey"].ToString());
             Environment.SetEnvironmentVariable("SPEECH_REGION", "southeastasia");*/
 
-            //Init button command
+            //Command when loading main windows
             LoadedWindowCommand = new RelayCommand<object>((p) => { return true; }, (p) =>
             {
 
+            });
+            LostFocusCommand = new RelayCommand<object>((p) => { return true; }, (p) =>
+            {
+                Keyboard.ClearFocus();
             });
             ButtonCommand = new RelayCommand<object>(ButtonCommandCanExecute, ButtonCommandExecute);
             ButtonAudioCommand = new RelayCommand<object>(ButtonCommandAudioCanExecute, ButtonCommandAudioExecute);
