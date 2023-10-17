@@ -50,8 +50,9 @@ namespace Dictionary.ViewModel
             }
         }
         public ICommand ButtonCommand { get; set; }
-        public ICommand ButtonAudioCommand { get; set;}
+        public ICommand ButtonAudioCommand { get; set; }
         public ICommand ButtonTranslatorCommand { get; set; }
+        public ICommand LoadedWindowCommand { get; set; }
 
         public MainViewModel()
         {
@@ -60,9 +61,14 @@ namespace Dictionary.ViewModel
             Environment.SetEnvironmentVariable("SPEECH_REGION", "southeastasia");*/
 
             //Init button command
+            LoadedWindowCommand = new RelayCommand<object>((p) => { return true; }, (p) =>
+            {
+
+            });
             ButtonCommand = new RelayCommand<object>(ButtonCommandCanExecute, ButtonCommandExecute);
             ButtonAudioCommand = new RelayCommand<object>(ButtonCommandAudioCanExecute, ButtonCommandAudioExecute);
             ButtonTranslatorCommand = new RelayCommand<object>(ButtonCommandTranslatorCanExecute, ButtonCommandTranslatorExecute);
+
 
         }
 
@@ -77,7 +83,8 @@ namespace Dictionary.ViewModel
             if (Text == null || Text == "")
             {
                 MessageBox.Show("Please enter a word");
-            } else
+            }
+            else
             {
                 string unsplashApiKey = App.Current.Resources["UnsplashApiKey"].ToString();
                 //Connect to Unsplash API with API credential
