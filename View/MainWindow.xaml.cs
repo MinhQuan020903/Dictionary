@@ -10,6 +10,7 @@ namespace Dictionary
     {
         public MainWindow()
         {
+
             // Merge the String.xaml resource dictionary into application resources
             this.Resources.MergedDictionaries.Add(new ResourceDictionary());
             this.Resources.MergedDictionaries[0].Source = new Uri("Resource/String.xaml", UriKind.Relative);
