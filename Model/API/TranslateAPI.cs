@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using Unsplasharp.Models;
 
 namespace Dictionary.Model
@@ -14,10 +15,10 @@ namespace Dictionary.Model
         private static readonly string key = App.Current.Resources["AzureTranslatorKey"].ToString();
         private static readonly string endpoint = App.Current.Resources["AzureTranslatorEndpoint"].ToString();
 
-        public static async Task<string> Translate(string text)
+        public static async Task<string> Translate(string text, string? sourceLangCode = "en", string? translateLangCode = "vi")
         {
             // Input and output languages are defined as parameters.
-            string route = "/translate?api-version=3.0&from=en&to=vi";
+            string route = $"/translate?api-version=3.0&from={sourceLangCode}&to={translateLangCode}";
             object[] body = new object[] { new { Text = text } };
             var requestBody = JsonConvert.SerializeObject(body);
 

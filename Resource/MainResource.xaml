@@ -3,4 +3,6 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <viewModel:MainViewModel x:Key="MainVM"></viewModel:MainViewModel>
+    <viewModel:TranslateParagraphViewModel x:Key="TranslateParagraphVM"></viewModel:TranslateParagraphViewModel>
 </ResourceDictionary>
+    

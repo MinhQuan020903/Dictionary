@@ -1,0 +1,128 @@
+﻿<Window x:Class="Dictionary.View.TranslateParagraph"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Dictionary.View"
+        mc:Ignorable="d"
+        
+       xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+       TextElement.FontWeight="Regular"
+       TextElement.FontSize="13"  
+       TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+       TextOptions.TextFormattingMode="Ideal" TextOptions.TextRenderingMode="Auto"
+       FontFamily="{DynamicResource MaterialDesignFont}"
+       DataContext="{StaticResource TranslateParagraphVM}"
+        
+       Title="TranslateParagraph" Height="600" Width="800"
+        
+        AllowsTransparency="True"
+        Background="Transparent"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None"
+        >
+    <Grid>
+        <materialDesign:Card>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto"/>
+                </Grid.RowDefinitions>
+
+                <StackPanel Margin="20px" Grid.Row="0">
+                    <Grid HorizontalAlignment="Center" Width="600">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <ComboBox
+                            Grid.Row="0"
+                            Grid.Column="0"
+                            materialDesign:HintAssist.FontFamily="Verdana"
+                            materialDesign:HintAssist.Hint="Chọn ngôn ngữ nhập vào"
+                            ItemsSource="{Binding LangList}"
+                            Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                            DisplayMemberPath="Language" SelectedValuePath="LangCode" 
+                            SelectedValue="{Binding SourceLang, Mode=TwoWay}"
+                            Margin="0px 0px 0px 10px"
+                        />
+                        <TextBox
+                            Grid.Row="1"
+                            Grid.ColumnSpan="2"
+                            MinWidth="280"
+                            MinHeight="80"
+                            VerticalAlignment="Stretch"
+                            Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                            materialDesign:HintAssist.Hint="Nhập đoạn văn để dịch"
+                            AcceptsReturn="True"
+                            Text="{Binding SourceParagraph, Mode=TwoWay}"
+                            TextWrapping="Wrap"
+                            VerticalScrollBarVisibility="Auto" 
+                        />
+                    </Grid>
+                </StackPanel>
+
+                <StackPanel Grid.Row="1">
+                    <Button
+                        Width="150px"
+                        Height="50px"
+                        Content="LIGHT"
+                        Style="{StaticResource MaterialDesignFlatLightBgButton}"
+                        ToolTip="MaterialDesignFlatLightButton"
+                        Command="{Binding TranslateCommand}"
+                    />
+                </StackPanel>
+
+                <StackPanel Margin="20px" Grid.Row="2">
+                    <Grid HorizontalAlignment="Center" Width="600">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <ComboBox
+                            Grid.Row="0"
+                            Grid.Column="0"
+                            materialDesign:HintAssist.FontFamily="Verdana"
+                            materialDesign:HintAssist.Hint="Chọn ngôn ngữ để dịch"
+                            ItemsSource="{Binding LangList}"
+                            Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                            DisplayMemberPath="Language" SelectedValuePath="LangCode" 
+                            SelectedValue="{Binding TranslateLang, Mode=TwoWay}"
+                            Margin="0px 0px 0px 10px"
+                        />
+                        <TextBox
+                            Grid.Row="1"
+                            Grid.ColumnSpan="2"
+                            MinWidth="280"
+                            MinHeight="80"
+                            VerticalAlignment="Stretch"
+                            Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                            materialDesign:HintAssist.Hint="Kết quả dịch"
+                            AcceptsReturn="True"
+                            Text="{Binding TranslatedParagraph, Mode=OneWay}"
+                            TextWrapping="Wrap"
+                            IsEnabled="False"
+                            VerticalScrollBarVisibility="Auto" 
+                        />
+                    </Grid>
+                </StackPanel>
+
+            </Grid>
+        </materialDesign:Card>
+    </Grid>
+</Window>
