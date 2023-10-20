@@ -1,4 +1,5 @@
 ﻿using Dictionary.Model;
+using Dictionary.Model.API;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -53,8 +54,8 @@ namespace Dictionary.ViewModel
         public string SourceLang
         {
             get { return _sourceLang; }
-            set 
-            { 
+            set
+            {
                 _sourceLang = value;
                 OnPropertyChanged(nameof(SourceLang));
             }
@@ -64,9 +65,9 @@ namespace Dictionary.ViewModel
         public string TranslateLang
         {
             get { return _translateLang; }
-            set 
-            { 
-                _translateLang = value; 
+            set
+            {
+                _translateLang = value;
                 OnPropertyChanged(nameof(TranslateLang));
             }
         }
@@ -111,16 +112,16 @@ namespace Dictionary.ViewModel
 
         private async void TranslateCommandExecute(object obj)
         {
-            if(SourceParagraph == "")
+            if (SourceParagraph == "")
             {
                 MessageBox.Show("Please enter source paragraph");
                 return;
             }
 
-            string translatedText = await TranslateAPI.Translate(SourceParagraph, _sourceLang, _translateLang);
+            ApiResponse<string> response = await TranslateAPI.Translate(SourceParagraph, _sourceLang, _translateLang);
 
             // Parse the JSON array
-            JArray jsonArray = JArray.Parse(translatedText);
+            JArray jsonArray = JArray.Parse(response.Data);
             // Check if the array contains any items
             if (jsonArray.Count > 0)
             {
