@@ -1,25 +1,26 @@
-﻿using Dictionary.Model.API;
+﻿
+using Dictionary.Model.JSON;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using Unsplasharp.Models;
 
-namespace Dictionary.Model
+namespace Dictionary.Model.API
 {
-    public class TranslateAPI
+    public class DictionaryLookupAPI
     {
         private static readonly string key = App.Current.Resources["AzureTranslatorKey"].ToString();
         private static readonly string endpoint = App.Current.Resources["AzureTranslatorEndpoint"].ToString();
 
-        public static async Task<ApiResponse<string>> Translate(string text, string? sourceLangCode = "vi", string? translateLangCode = "en")
+        public static async Task<ApiResponse<DictionaryLookup>> LookUp(string text, string? sourceLangCode = "vi", string? translateLangCode = "en")
         {
             // Input and output languages are defined as parameters.
-            string route = $"/translate?api-version=3.0&from={sourceLangCode}&to={translateLangCode}";
+            string route = $"/dictionary/lookup?api-version=3.0&from={sourceLangCode}&to={translateLangCode}";
             object[] body = new object[] { new { Text = text } };
             var requestBody = JsonConvert.SerializeObject(body);
 
@@ -42,11 +43,30 @@ namespace Dictionary.Model
 
                         // Read response as a string.
                         string result = await response.Content.ReadAsStringAsync();
-                        return new ApiResponse<string>
+                        List<DictionaryLookup> dictionaryLookupList = JsonConvert.DeserializeObject<List<DictionaryLookup>>(result);
+
+                        if (dictionaryLookupList != null)
                         {
-                            Data = result,
-                            IsSuccess = true
-                        };
+                            return new ApiResponse<DictionaryLookup>
+                            {
+                                Data = dictionaryLookupList[0],
+                                IsSuccess = true
+                            };
+                        }
+                        else
+                        {
+                            return new ApiResponse<DictionaryLookup>
+                            {
+                                Data = null,
+                                IsSuccess = false,
+                                Error = new ErrorDetails
+                                {
+                                    Code = 0,
+                                    Message = "Couldn't translate."
+                                }
+                            };
+                        }
+
                     }
                     else
                     {
@@ -55,9 +75,9 @@ namespace Dictionary.Model
 
                         var errorResponse = JsonConvert.DeserializeObject<ApiResponse<string>>(await response.Content.ReadAsStringAsync());
 
-                        return new ApiResponse<string>
+                        return new ApiResponse<DictionaryLookup>
                         {
-                            Data = "",
+                            Data = null,
                             IsSuccess = false,
                             Error = errorResponse.Error
                         };
@@ -69,9 +89,9 @@ namespace Dictionary.Model
                 }
 
             }
-            return new ApiResponse<string>
+            return new ApiResponse<DictionaryLookup>
             {
-                Data = "",
+                Data = null,
                 IsSuccess = false,
                 Error = new ErrorDetails
                 {
@@ -79,6 +99,14 @@ namespace Dictionary.Model
                     Message = "Unknown error"
                 }
             };
+        }
+        private static string RemoveEncoding(string encodedJson)
+        {
+            var sb = new StringBuilder(encodedJson);
+            sb.Replace("\\", string.Empty);
+            sb.Replace("\"[", "[");
+            sb.Replace("]\"", "]");
+            return sb.ToString();
         }
     }
 }

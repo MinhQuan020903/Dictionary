@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 
 namespace Dictionary.Model
 {
-    internal class Class1
+    public class ErrorDetails
     {
+        public int Code { get; set; }
+        public string Message { get; set; }
     }
 }

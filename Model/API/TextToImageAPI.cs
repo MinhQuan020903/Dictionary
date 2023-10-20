@@ -28,7 +28,7 @@ namespace Dictionary.Model
             {
                 Console.WriteLine(e.ToString());
             }
-            return  null;
+            return "";
         }
     }
 }
