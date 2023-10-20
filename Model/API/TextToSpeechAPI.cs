@@ -19,14 +19,22 @@ namespace Dictionary.Model
         static SpeechSynthesizer speechSynthesizer; // Declare a static instance
         static bool isInitialized = false; // Track initialization status
 
-        static async Task InitializeAsync()
+        static async Task InitializeAsync(string from, string to)
         {
             if (!isInitialized)
             {
                 var speechConfig = SpeechConfig.FromSubscription(speechKey, speechRegion);
                 //Vietnamese voice: vi-VN-HoaiMyNeural
                 //English voice: en-US-JennyNeural
-                speechConfig.SpeechSynthesisVoiceName = "en-US-JennyNeural";
+                if (from.Equals("vi") && to.Equals("en"))
+                {
+                    speechConfig.SpeechSynthesisVoiceName = "en-US-JennyNeural";
+                }
+                else if (from.Equals("en") && to.Equals("vi"))
+                {
+                    speechConfig.SpeechSynthesisVoiceName = "vi-VN-HoaiMyNeural";
+                }
+
                 speechSynthesizer = new SpeechSynthesizer(speechConfig);
 
                 // Perform any additional initialization here
@@ -58,10 +66,10 @@ namespace Dictionary.Model
             }
         }
 
-        public static async Task TextToSpeech(string text)
+        public static async Task TextToSpeech(string text, string from, string to)
         {
             // Initialize the speech synthesizer if not already initialized
-            await InitializeAsync();
+            await InitializeAsync(from, to);
 
             // Use the preloaded speechSynthesizer instance
             var speechSynthesisResult = await speechSynthesizer.SpeakTextAsync(text);
