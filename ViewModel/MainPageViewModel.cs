@@ -19,7 +19,7 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace Dictionary.ViewModel
 {
-    public class MainViewModel : BaseViewModel
+    public class MainPageViewModel : BaseViewModel
     {
         //Data binding for text box and image
         private Word _translatedWord;
@@ -115,7 +115,7 @@ namespace Dictionary.ViewModel
         public ICommand ButtonTranslatorCommand { get; set; }
         public ICommand LoadedWindowCommand { get; set; }
 
-        public MainViewModel()
+        public MainPageViewModel()
         {
             /*//Set environment variable for Azure Speech API
             Environment.SetEnvironmentVariable("SPEECH_KEY", App.Current.Resources["AzureTextToSpeechKey"].ToString());

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Dictionary.View;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,21 +11,21 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Dictionary.Model;
 
-namespace Dictionary.View
+namespace Dictionary
 {
     /// <summary>
-    /// Interaction logic for TranslateParagraph.xaml
+    /// Interaction logic for IndexWindow.xaml
     /// </summary>
-    public partial class TranslateParagraph : Window
+    public partial class IndexWindow : NavigationWindow
     {
-        public TranslateParagraph()
+        public IndexWindow()
         {
-            this.Resources.MergedDictionaries.Add(new ResourceDictionary());
-            this.Resources.MergedDictionaries[0].Source = new Uri("Resource/String.xaml", UriKind.Relative);
-
             InitializeComponent();
+            NavigationServiceModel.SetNavigationService(this.NavigationService);
         }
     }
 }

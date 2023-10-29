@@ -4,7 +4,7 @@
     xmlns:userControlViewModel="clr-namespace:Dictionary.ViewModel.UserControlViewModel"
     xmlns:viewModel="clr-namespace:Dictionary.ViewModel">
 
-    <viewModel:MainViewModel x:Key="MainVM"></viewModel:MainViewModel>
-    <viewModel:TranslateParagraphViewModel x:Key="TranslateParagraphVM"></viewModel:TranslateParagraphViewModel>
-    <userControlViewModel:ControlBarViewModel x:Key="ControlBarVM" />
+    <viewModel:MainPageViewModel x:Key="MainPageVM"></viewModel:MainPageViewModel>
+    <viewModel:TranslateParagraphPageViewModel x:Key="TranslateParagraphPageVM"></viewModel:TranslateParagraphPageViewModel>
+    <userControlViewModel:SidelBarViewModel x:Key="SideBarUCVM" />
 </ResourceDictionary>

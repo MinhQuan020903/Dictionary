@@ -40,7 +40,7 @@ namespace Dictionary.ViewModel
         }
     }
 
-    public class TranslateParagraphViewModel : BaseViewModel
+    public class TranslateParagraphPageViewModel : BaseViewModel
     {
         private List<LanguageObject> _langList;
 
@@ -96,7 +96,7 @@ namespace Dictionary.ViewModel
         public ICommand SelectSourceLanguageCommand { get; set; }
         public ICommand SelectTranslateLanguageCommand { get; set; }
 
-        public TranslateParagraphViewModel()
+        public TranslateParagraphPageViewModel()
         {
             LangList = new List<LanguageObject>();
             LangList.Add(new LanguageObject("Tiếng Việt", "vi"));
