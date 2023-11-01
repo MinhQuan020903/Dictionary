@@ -1,7 +1,9 @@
 ﻿using Dictionary.Model;
 using Dictionary.Model.API;
+
 using Dictionary.Model.JSON;
 using Dictionary.Model.Word;
+
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -53,6 +55,7 @@ namespace Dictionary.ViewModel
             }
         }
 
+
         private string _partOfSpeech;
         public string PartOfSpeech
         {
@@ -76,6 +79,7 @@ namespace Dictionary.ViewModel
             }
         }
 
+
         private string _image;
         public string Image
         {
@@ -86,6 +90,7 @@ namespace Dictionary.ViewModel
                 OnPropertyChanged(nameof(Image));
             }
         }
+
 
 
         //Data binding for visibility of translated grid
@@ -108,6 +113,7 @@ namespace Dictionary.ViewModel
             {
                 _isTranslatedGridVisible = value;
                 OnPropertyChanged(nameof(IsTranslatedGridVisible));
+
             }
         }
         public ICommand LostFocusCommand { get; set; }
@@ -136,6 +142,7 @@ namespace Dictionary.ViewModel
 
 
         }
+
 
 
         private bool ButtonCommandAudioCanExecute(object obj)
@@ -174,15 +181,18 @@ namespace Dictionary.ViewModel
                 {
                     Console.WriteLine(ex.Message);
                 }
+
                 //Get synonyms and parts of speech of word
                 try
                 {
                     await DictionaryLookupInput("vi", "en");
+
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
                 }
+
                 //Get example of translation
                 try
                 {
@@ -246,8 +256,10 @@ namespace Dictionary.ViewModel
                                 else
                                 {
                                     // 'translatedText' now contains the value of the "text" property
+
                                     TranslatedWord.SetTranslatedWord(textToken.ToString());
                                     TranslatedText = textToken.ToString();
+
                                 }
 
                             }
@@ -266,6 +278,7 @@ namespace Dictionary.ViewModel
                 Console.WriteLine(ex.Message);
             }
         }
+
 
         private async Task DictionaryLookupInput(string from, string to)
         {
@@ -315,6 +328,7 @@ namespace Dictionary.ViewModel
                 {
                     MessageBox.Show("Vui lòng nhập lại từ.");
                 }
+
 
             }
             catch (Exception ex)
