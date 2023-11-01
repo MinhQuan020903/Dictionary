@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Windows;
+using System.Windows.Controls;
 
-namespace Dictionary
+namespace Dictionary.View
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Interaction logic for MainPageView.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainPageView : Page
     {
-        public MainWindow()
+        public MainPageView()
         {
 
             // Merge the String.xaml resource dictionary into application resources

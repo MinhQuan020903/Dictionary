@@ -6,5 +6,6 @@
     <sys:String x:Key="AzureTextToSpeechRegion">southeastasia</sys:String>
     <sys:String x:Key="AzureTranslatorKey">cb5ac1e730e749f399d863a96b99a30f</sys:String>
     <sys:String x:Key="AzureTranslatorEndpoint">https://api.cognitive.microsofttranslator.com/</sys:String>
-    
+    <sys:Double x:Key="ScreenHeight">800</sys:Double>
+    <sys:Double x:Key="ScreenWidth">1500</sys:Double>
 </ResourceDictionary>
