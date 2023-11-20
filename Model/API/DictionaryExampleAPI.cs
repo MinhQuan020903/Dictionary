@@ -18,7 +18,7 @@ namespace Dictionary.Model.API
         {
             // Input and output languages are defined as parameters.
             string route = $"/dictionary/examples?api-version=3.0&from={sourceLangCode}&to={translateLangCode}";
-            object[] body = new object[] { new { Text = text, Translation = translation  }
+            object[] body = new object[] { new { Text = text.Normalize(), Translation = translation.Normalize()  }
     };
             var requestBody = JsonConvert.SerializeObject(body);
 

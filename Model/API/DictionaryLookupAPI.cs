@@ -21,7 +21,7 @@ namespace Dictionary.Model.API
         {
             // Input and output languages are defined as parameters.
             string route = $"/dictionary/lookup?api-version=3.0&from={sourceLangCode}&to={translateLangCode}";
-            object[] body = new object[] { new { Text = text } };
+            object[] body = new object[] { new { Text = text.Normalize() } };
             var requestBody = JsonConvert.SerializeObject(body);
 
             using (var client = new HttpClient())

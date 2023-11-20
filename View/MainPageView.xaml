@@ -65,7 +65,7 @@
                                          Height="50px"
                                          Margin="0,0,10,0"
                                          BorderThickness="1px"
-                                         Text="{Binding DataContext.Text, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}">
+                                         Text="{Binding DataContext.Text, RelativeSource={RelativeSource FindAncestor, AncestorType=Page}}">
                                     <i:Interaction.Triggers>
                                         <i:EventTrigger EventName="MouseDown">
                                             <i:InvokeCommandAction Command="{Binding MouseDownCommand}"
@@ -140,9 +140,9 @@
 
                                 <Button Grid.Column="1"
                                         Width="150px"
-                                        Command="{Binding DataContext.ButtonTranslatorCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
+                                        Command="{Binding DataContext.ButtonTranslatorCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=Page}}"
                                         CommandParameter="{Binding text, ElementName=tbSearch}"
-                                        IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
+                                        IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Page}}"
                                         ToolTip="Icon">
                                     <TextBlock>Translate</TextBlock>
                                 </Button>
@@ -182,7 +182,7 @@
                                                            Height="auto"
                                                            HorizontalAlignment="Center"
                                                            VerticalAlignment="Center"
-                                                           Text="{Binding DataContext.TranslatedText, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
+                                                           Text="{Binding DataContext.TranslatedText, RelativeSource={RelativeSource FindAncestor, AncestorType=Page}}"
                                                            TextAlignment="Center">
                                                     <TextBlock.Style>
                                                         <Style TargetType="TextBlock">
@@ -200,7 +200,7 @@
                                                         Width="30px"
                                                         Height="30px"
                                                         Background="{StaticResource DarkPurple}"
-                                                        Command="{Binding DataContext.ButtonAudioCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
+                                                        Command="{Binding DataContext.ButtonAudioCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=Page}}"
                                                         CommandParameter="{Binding Text, ElementName=tbSearch}"
                                                         Content="{materialDesign:PackIcon VolumeHigh}"
                                                         Foreground="White"
@@ -214,7 +214,7 @@
                                                        Height="auto"
                                                        HorizontalAlignment="Left"
                                                        VerticalAlignment="Center"
-                                                       Text="{Binding DataContext.PartOfSpeech, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
+                                                       Text="{Binding DataContext.PartOfSpeech, RelativeSource={RelativeSource FindAncestor, AncestorType=Page}}"
                                                        TextAlignment="Center">
                                                 <TextBlock.Style>
                                                     <Style TargetType="TextBlock">
@@ -239,7 +239,7 @@
                                                    RadiusX="15"
                                                    RadiusY="15">
                                             <Rectangle.Fill>
-                                                <ImageBrush ImageSource="{Binding DataContext.Image, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}" />
+                                                <ImageBrush ImageSource="{Binding DataContext.Image, RelativeSource={RelativeSource FindAncestor, AncestorType=Page}}" />
                                             </Rectangle.Fill>
                                         </Rectangle>
                                     </DockPanel>
