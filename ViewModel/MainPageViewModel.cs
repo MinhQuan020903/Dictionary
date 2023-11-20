@@ -23,6 +23,36 @@ namespace Dictionary.ViewModel
 {
     public class MainPageViewModel : BaseViewModel
     {
+        //List of languages
+        private List<LanguageObject> _langList;
+
+        public List<LanguageObject> LangList
+        {
+            get => _langList;
+            set => _langList = value;
+        }
+
+        private string _sourceLang = "vi";
+        public string SourceLang
+        {
+            get { return _sourceLang; }
+            set
+            {
+                _sourceLang = value;
+                OnPropertyChanged(nameof(SourceLang));
+            }
+        }
+
+        private string _translateLang = "en";
+        public string TranslateLang
+        {
+            get { return _translateLang; }
+            set
+            {
+                _translateLang = value;
+                OnPropertyChanged(nameof(TranslateLang));
+            }
+        }
         //Data binding for text box and image
         private Word _translatedWord;
         public Word TranslatedWord
@@ -141,6 +171,9 @@ namespace Dictionary.ViewModel
             ButtonTranslatorCommand = new RelayCommand<object>(ButtonCommandTranslatorCanExecute, ButtonCommandTranslatorExecute);
 
 
+            LangList = new List<LanguageObject>();
+            LangList.Add(new LanguageObject("Tiếng Việt", "vi"));
+            LangList.Add(new LanguageObject("Tiếng Anh", "en"));
         }
 
 
@@ -153,7 +186,7 @@ namespace Dictionary.ViewModel
         private async void ButtonCommandAudioExecute(object obj)
         {
             Console.Write(Text);
-            await TextToSpeechAPI.TextToSpeech(TranslatedText, "vi", "en");
+            await TextToSpeechAPI.TextToSpeech(TranslatedText, SourceLang, TranslateLang);
         }
 
         private bool ButtonCommandTranslatorCanExecute(object obj)
@@ -162,11 +195,19 @@ namespace Dictionary.ViewModel
         }
         private async void ButtonCommandTranslatorExecute(object obj)
         {
+            //Set loading as Hidden by default 
+            //(Incase input is invalid)
+            IsLoading = Visibility.Hidden;
+            IsTranslatedGridVisible = Visibility.Hidden;
             //Check if text box is empty
 
             if (Text == null || Text == "")
             {
-                MessageBox.Show("Please enter a word");
+                MessageBox.Show("Vui lòng nhập từ!");
+            }
+            if (SourceLang == TranslateLang)
+            {
+                MessageBox.Show("Vui lòng chọn hai ngôn ngữ khác nhau!");
             }
             else
             {
@@ -175,7 +216,7 @@ namespace Dictionary.ViewModel
                 //Translate text
                 try
                 {
-                    await TranslateInput("vi", "en");
+                    await TranslateInput(SourceLang, TranslateLang);
                 }
                 catch (Exception ex)
                 {
@@ -185,8 +226,12 @@ namespace Dictionary.ViewModel
                 //Get synonyms and parts of speech of word
                 try
                 {
-                    await DictionaryLookupInput("vi", "en");
-
+                    await Task.WhenAll(
+                        //Get synonyms and parts of speech of word
+                        DictionaryLookupInput(SourceLang, TranslateLang),
+                        //Get example image from text
+                        GetImageOfTranslatedText()
+                    );
                 }
                 catch (Exception ex)
                 {
@@ -196,7 +241,7 @@ namespace Dictionary.ViewModel
                 //Get example of translation
                 try
                 {
-                    await GetAllSynonymExamples("vi", "en");
+                    await GetAllSynonymExamples(SourceLang, TranslateLang);
 
                 }
                 catch (Exception ex)
@@ -206,20 +251,23 @@ namespace Dictionary.ViewModel
                 //Binding data to ListView
                 WordListView = new WordListView();
                 WordListView.PopulateWordListView(TranslatedWord.GetExamplesOfSynonym());
-                //Get example image from text
-                try
-                {
-                    string unsplashApiKey = App.Current.Resources["UnsplashApiKey"].ToString();
-                    //Connect to Unsplash API with API credential
-                    Image = await TextToImageAPI.GetImageFromText(TranslatedText);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
                 //Set loading to hidden
                 IsTranslatedGridVisible = Visibility.Visible;
                 IsLoading = Visibility.Hidden;
+            }
+        }
+        private async Task GetImageOfTranslatedText()
+        {
+            //Get example image from text
+            try
+            {
+                string unsplashApiKey = App.Current.Resources["UnsplashApiKey"].ToString();
+                //Connect to Unsplash API with API credential
+                Image = await TextToImageAPI.GetImageFromText(TranslatedText);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
             }
         }
         private async Task TranslateInput(string from, string to)
@@ -252,6 +300,8 @@ namespace Dictionary.ViewModel
                                 if (string.Equals(textToken.ToString(), Text, StringComparison.OrdinalIgnoreCase))
                                 {
                                     MessageBox.Show("Vui lòng nhập lại từ.");
+                                    IsLoading = Visibility.Hidden;
+                                    IsTranslatedGridVisible = Visibility.Hidden;
                                 }
                                 else
                                 {
@@ -269,6 +319,8 @@ namespace Dictionary.ViewModel
                     else
                     {
                         MessageBox.Show("Vui lòng nhập lại từ.");
+                        IsLoading = Visibility.Hidden;
+                        IsTranslatedGridVisible = Visibility.Hidden;
                     }
                 }
 
@@ -297,6 +349,8 @@ namespace Dictionary.ViewModel
                 else
                 {
                     MessageBox.Show("Vui lòng nhập lại từ.");
+                    IsLoading = Visibility.Hidden;
+                    IsTranslatedGridVisible = Visibility.Hidden;
                 }
 
             }
@@ -310,7 +364,7 @@ namespace Dictionary.ViewModel
         {
             foreach (WordSynonym synonym in TranslatedWord.GetSynonyms())
             {
-                await DictionaryExampleInput(synonym.GetSynonym(), "vi", "en");
+                await DictionaryExampleInput(synonym.GetSynonym(), SourceLang, TranslateLang);
             }
         }
 
@@ -327,6 +381,8 @@ namespace Dictionary.ViewModel
                 else
                 {
                     MessageBox.Show("Vui lòng nhập lại từ.");
+                    IsLoading = Visibility.Hidden;
+                    IsTranslatedGridVisible = Visibility.Hidden;
                 }
 
 
