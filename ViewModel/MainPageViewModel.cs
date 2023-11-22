@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data.Common;
 using System.IO;
@@ -24,8 +25,9 @@ namespace Dictionary.ViewModel
 {
     public class MainPageViewModel : BaseViewModel
     {
-        private List<SavedWord> _savedWords;
-        public List<SavedWord> SavedWords
+        private ObservableCollection<SavedWord> _savedWords;
+
+        public ObservableCollection<SavedWord> SavedWords
         {
             get => _savedWords;
             set
@@ -34,6 +36,9 @@ namespace Dictionary.ViewModel
                 OnPropertyChanged(nameof(SavedWords));
             }
         }
+        private int maxSavedWords = 8;
+
+
         //List of languages
         private List<LanguageObject> _langList;
 
@@ -156,10 +161,21 @@ namespace Dictionary.ViewModel
 
             }
         }
+        private Boolean _isSuccess = false;
+        public Boolean IsSuccess
+        {
+            get => _isSuccess;
+            set
+            {
+                _isSuccess = value;
+                OnPropertyChanged(nameof(IsSuccess));
+            }
+        }
         public ICommand LostFocusCommand { get; set; }
         public ICommand ButtonAudioCommand { get; set; }
         public ICommand ButtonTranslatorCommand { get; set; }
         public ICommand LoadedWindowCommand { get; set; }
+        public ICommand SavedWordButtonCommand { get; set; }
 
         public MainPageViewModel()
         {
@@ -168,9 +184,10 @@ namespace Dictionary.ViewModel
             Environment.SetEnvironmentVariable("SPEECH_REGION", "southeastasia");*/
 
             //Load saved words from Log file
-            SavedWords = new List<SavedWord>();
+            SavedWords = new ObservableCollection<SavedWord>();
 
-
+            LoadTranslatedItemsFromFile();
+            string saveWordJson = JsonConvert.SerializeObject(SavedWords);
 
 
             //Command when loading main windows
@@ -185,6 +202,7 @@ namespace Dictionary.ViewModel
             });
             ButtonAudioCommand = new RelayCommand<object>(ButtonCommandAudioCanExecute, ButtonCommandAudioExecute);
             ButtonTranslatorCommand = new RelayCommand<object>(ButtonCommandTranslatorCanExecute, ButtonCommandTranslatorExecute);
+            SavedWordButtonCommand = new RelayCommand<SavedWord>(SavedWordButtonCanExecute, SavedWordButtonExecute);
 
 
             LangList = new List<LanguageObject>();
@@ -192,6 +210,28 @@ namespace Dictionary.ViewModel
             LangList.Add(new LanguageObject("Tiếng Anh", "en"));
         }
 
+
+        private void SavedWordButtonExecute(SavedWord selectedSavedWord)
+        {
+            // Set properties in the view model based on the selected SavedWord
+            Text = selectedSavedWord.Text;
+            TranslatedText = selectedSavedWord.TranslatedText;
+            PartOfSpeech = selectedSavedWord.PartOfSpeech;
+            Image = selectedSavedWord.Image;
+            WordListView = selectedSavedWord.WordListView;
+
+            // Update SourceLang and TranslateLang in the view model
+            SourceLang = selectedSavedWord.SourceLang;
+            TranslateLang = selectedSavedWord.TranslateLang;
+            IsTranslatedGridVisible = Visibility.Visible;
+        }
+
+
+        private bool SavedWordButtonCanExecute(SavedWord selectedSavedWord)
+        {
+            // Implement logic to determine if the command can be executed
+            return selectedSavedWord != null;
+        }
 
 
         private bool ButtonCommandAudioCanExecute(object obj)
@@ -259,39 +299,55 @@ namespace Dictionary.ViewModel
                 {
                     await GetAllSynonymExamples(SourceLang, TranslateLang);
 
+
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
                 }
-                //Binding data to ListView
-                WordListView = new WordListView();
-                WordListView.PopulateWordListView(TranslatedWord.GetExamplesOfSynonym());
-                //Set loading to hidden
-                IsTranslatedGridVisible = Visibility.Visible;
-                IsLoading = Visibility.Hidden;
-                // Create a new SavedWord object
-                SavedWord translationItem = new SavedWord
-                {
-                    SourceLang = SourceLang,
-                    TranslateLang = TranslateLang,
-                    Text = Text,
-                    TranslatedText = TranslatedText,
-                    PartOfSpeech = PartOfSpeech,
-                    Image = Image,
-                    WordListView = WordListView
-                };
 
-                // Check if there is already an item with the same Text
-                if (!SavedWords.Any(savedWord => savedWord.Text == Text))
-                {
-                    // Add the item to the list of translated items
-                    SavedWords.Add(translationItem);
 
-                    // Save the list of translated items to a file
-                    SaveTranslatedItemsToFile("..\\Log\\SavedWord.json");
-                    MessageBox.Show("DONE");
+                if (IsSuccess)
+                {
+
+                    //Binding data to ListView
+                    WordListView = new WordListView();
+                    WordListView.PopulateWordListView(TranslatedWord.GetExamplesOfSynonym());
+                    //Set loading to hidden
+                    IsTranslatedGridVisible = Visibility.Visible;
+                    IsLoading = Visibility.Hidden;
+                    // Create a new SavedWord object
+                    SavedWord translationItem = new SavedWord
+                    {
+                        SourceLang = SourceLang,
+                        TranslateLang = TranslateLang,
+                        Text = Text,
+                        TranslatedText = TranslatedText,
+                        PartOfSpeech = PartOfSpeech,
+                        Image = Image,
+                        WordListView = WordListView
+                    };
+
+                    // Check if there is already an item with the same Text
+                    if (!SavedWords.Any(savedWord => savedWord.Text == Text))
+                    {
+
+                        // Limit the number of saved words to 10
+                        if (SavedWords.Count >= maxSavedWords)
+                        {
+                            // Remove the oldest item
+                            SavedWords.RemoveAt(0);
+                        }
+
+                        // Add the item to the ObservableCollection
+                        SavedWords.Add(translationItem);
+
+                        // Save the list of translated items to a file
+                        SaveTranslatedItemsToFile("..\\Log\\SavedWord.json");
+                    }
                 }
+
+
 
             }
         }
@@ -326,15 +382,19 @@ namespace Dictionary.ViewModel
 
 
 
-        public void LoadTranslatedItemsFromFile(string filePath)
+        public void LoadTranslatedItemsFromFile()
         {
             try
             {
-                if (File.Exists(filePath))
-                {
-                    string translatedItemsJson = File.ReadAllText(filePath);
+                string baseDirectory = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\.."));
+                // Check if the "Log" folder exists, if not, create it
+                string logFolderPath = Path.Combine(baseDirectory, "Log\\SavedWord.json");
 
-                    SavedWords = JsonConvert.DeserializeObject<List<SavedWord>>(translatedItemsJson);
+                if (File.Exists(logFolderPath))
+                {
+                    string translatedItemsJson = File.ReadAllText(logFolderPath);
+                    SavedWords = new ObservableCollection<SavedWord>(JsonConvert.DeserializeObject<List<SavedWord>>(translatedItemsJson));
+
                 }
                 else
                 { }
@@ -466,6 +526,11 @@ namespace Dictionary.ViewModel
                 if (lookUp.IsSuccess)
                 {
                     TranslatedWord.SetExamplesOfSynonym(lookUp.Data.examples);
+
+                    //After getting all examples
+                    //(Complete translation)
+                    //, set IsSuccess to true
+                    IsSuccess = true;
                 }
                 else
                 {
