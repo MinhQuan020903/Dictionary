@@ -64,7 +64,7 @@
                                           DisplayMemberPath="Language"
                                           SelectedValuePath="LangCode"
                                           SelectedValue="{Binding SourceLang, Mode=TwoWay}"
-                                          Margin="0px 0px 0px 10px" />
+                                          Margin="0px 0px 0px 10px" SelectionChanged="ComboBox_SelectionChanged" />
                                 <TextBox Grid.Row="1"
                                          Grid.ColumnSpan="2"
                                          MinWidth="280"

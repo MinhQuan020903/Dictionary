@@ -6,7 +6,6 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
 using Unsplasharp.Models;
 
 namespace Dictionary.Model
@@ -20,7 +19,7 @@ namespace Dictionary.Model
         {
             // Input and output languages are defined as parameters.
             string route = $"/translate?api-version=3.0&from={sourceLangCode}&to={translateLangCode}";
-            object[] body = new object[] { new { Text = text.Normalize() } };
+            object[] body = new object[] { new { Text = text } };
             var requestBody = JsonConvert.SerializeObject(body);
 
             using (var client = new HttpClient())
