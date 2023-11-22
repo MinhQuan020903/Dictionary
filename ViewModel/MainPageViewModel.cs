@@ -3,12 +3,13 @@ using Dictionary.Model.API;
 
 using Dictionary.Model.JSON;
 using Dictionary.Model.Word;
-
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data.Common;
+using System.IO;
 using System.Linq;
 using System.Reflection.Metadata;
 using System.Text;
@@ -23,6 +24,16 @@ namespace Dictionary.ViewModel
 {
     public class MainPageViewModel : BaseViewModel
     {
+        private List<SavedWord> _savedWords;
+        public List<SavedWord> SavedWords
+        {
+            get => _savedWords;
+            set
+            {
+                _savedWords = value;
+                OnPropertyChanged(nameof(SavedWords));
+            }
+        }
         //List of languages
         private List<LanguageObject> _langList;
 
@@ -53,6 +64,7 @@ namespace Dictionary.ViewModel
                 OnPropertyChanged(nameof(TranslateLang));
             }
         }
+
         //Data binding for text box and image
         private Word _translatedWord;
         public Word TranslatedWord
@@ -121,8 +133,6 @@ namespace Dictionary.ViewModel
             }
         }
 
-
-
         //Data binding for visibility of translated grid
         private Visibility _isTranslatedGridVisible = Visibility.Hidden;
         private Visibility _isLoading = Visibility.Hidden;
@@ -156,6 +166,12 @@ namespace Dictionary.ViewModel
             /*//Set environment variable for Azure Speech API
             Environment.SetEnvironmentVariable("SPEECH_KEY", App.Current.Resources["AzureTextToSpeechKey"].ToString());
             Environment.SetEnvironmentVariable("SPEECH_REGION", "southeastasia");*/
+
+            //Load saved words from Log file
+            SavedWords = new List<SavedWord>();
+
+
+
 
             //Command when loading main windows
             LoadedWindowCommand = new RelayCommand<object>((p) => { return true; }, (p) =>
@@ -254,8 +270,81 @@ namespace Dictionary.ViewModel
                 //Set loading to hidden
                 IsTranslatedGridVisible = Visibility.Visible;
                 IsLoading = Visibility.Hidden;
+                // Create a new SavedWord object
+                SavedWord translationItem = new SavedWord
+                {
+                    SourceLang = SourceLang,
+                    TranslateLang = TranslateLang,
+                    Text = Text,
+                    TranslatedText = TranslatedText,
+                    PartOfSpeech = PartOfSpeech,
+                    Image = Image,
+                    WordListView = WordListView
+                };
+
+                // Check if there is already an item with the same Text
+                if (!SavedWords.Any(savedWord => savedWord.Text == Text))
+                {
+                    // Add the item to the list of translated items
+                    SavedWords.Add(translationItem);
+
+                    // Save the list of translated items to a file
+                    SaveTranslatedItemsToFile("..\\Log\\SavedWord.json");
+                    MessageBox.Show("DONE");
+                }
+
             }
         }
+
+        public void SaveTranslatedItemsToFile(string filePath)
+        {
+            try
+            {
+                // Get the base directory where the application is running
+
+                string baseDirectory = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\.."));
+                // Check if the "Log" folder exists, if not, create it
+                string logFolderPath = Path.Combine(baseDirectory, "Log");
+                if (!Directory.Exists(logFolderPath))
+                {
+                    Directory.CreateDirectory(logFolderPath);
+                }
+
+                // Construct the full file path
+                string fullFilePath = Path.Combine(logFolderPath, filePath);
+
+                // Serialize and save translated items to a file
+                string translatedItemsJson = JsonConvert.SerializeObject(SavedWords);
+                File.WriteAllText(fullFilePath, translatedItemsJson);
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+
+
+
+        public void LoadTranslatedItemsFromFile(string filePath)
+        {
+            try
+            {
+                if (File.Exists(filePath))
+                {
+                    string translatedItemsJson = File.ReadAllText(filePath);
+
+                    SavedWords = JsonConvert.DeserializeObject<List<SavedWord>>(translatedItemsJson);
+                }
+                else
+                { }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+
         private async Task GetImageOfTranslatedText()
         {
             //Get example image from text
