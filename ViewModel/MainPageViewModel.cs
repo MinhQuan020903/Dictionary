@@ -8,18 +8,11 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Data.Common;
 using System.IO;
 using System.Linq;
-using System.Reflection.Metadata;
-using System.Text;
-using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
-using Unsplasharp;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Dictionary.ViewModel
 {
@@ -208,6 +201,44 @@ namespace Dictionary.ViewModel
             LangList = new List<LanguageObject>();
             LangList.Add(new LanguageObject("Tiếng Việt", "vi"));
             LangList.Add(new LanguageObject("Tiếng Anh", "en"));
+        }
+        public MainPageViewModel(string randomWord)
+        {
+            /*//Set environment variable for Azure Speech API
+            Environment.SetEnvironmentVariable("SPEECH_KEY", App.Current.Resources["AzureTextToSpeechKey"].ToString());
+            Environment.SetEnvironmentVariable("SPEECH_REGION", "southeastasia");*/
+            Text = randomWord;
+
+            //Load saved words from Log file
+            SavedWords = new ObservableCollection<SavedWord>();
+
+            LoadTranslatedItemsFromFile();
+            string saveWordJson = JsonConvert.SerializeObject(SavedWords);
+
+
+            //Command when loading main windows
+            LoadedWindowCommand = new RelayCommand<object>((p) => { return true; }, (p) =>
+            {
+
+            });
+            //Command when text box lost focus
+            LostFocusCommand = new RelayCommand<object>((p) => { return true; }, (p) =>
+            {
+                Keyboard.ClearFocus();
+            });
+            ButtonAudioCommand = new RelayCommand<object>(ButtonCommandAudioCanExecute, ButtonCommandAudioExecute);
+            ButtonTranslatorCommand = new RelayCommand<object>(ButtonCommandTranslatorCanExecute, ButtonCommandTranslatorExecute);
+            SavedWordButtonCommand = new RelayCommand<SavedWord>(SavedWordButtonCanExecute, SavedWordButtonExecute);
+
+
+            LangList = new List<LanguageObject>();
+            LangList.Add(new LanguageObject("Tiếng Việt", "vi"));
+            LangList.Add(new LanguageObject("Tiếng Anh", "en"));
+            //Set language for random word (default is Vietnamese)
+            SourceLang = "en";
+            TranslateLang = "vi";
+            //Call for translation
+            ButtonCommandTranslatorExecute(null);
         }
 
 

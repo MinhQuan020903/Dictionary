@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Unsplasharp;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Dictionary.Model
 {

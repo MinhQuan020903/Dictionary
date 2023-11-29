@@ -1,18 +1,9 @@
 ﻿using Dictionary.Model;
 using Dictionary.Model.API;
 using Newtonsoft.Json.Linq;
-using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Reflection.Metadata;
-using System.Text;
-using System.Text.Json.Nodes;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
-using Unsplasharp;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Dictionary.ViewModel
 {
