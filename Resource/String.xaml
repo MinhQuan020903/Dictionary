@@ -1,11 +1,14 @@
-﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
-                    xmlns:sys="clr-namespace:System;assembly=netstandard">
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:sys="clr-namespace:System;assembly=netstandard">
     <sys:String x:Key="UnsplashApiKey">F7N8sz1bB94PVtZhq4MQTp4YvwKOh-UNMk2i6M_joS0</sys:String>
     <sys:String x:Key="AzureTextToSpeechKey">8ceb1692cfe849d3b1106b5eb73b90d8</sys:String>
     <sys:String x:Key="AzureTextToSpeechRegion">southeastasia</sys:String>
     <sys:String x:Key="AzureTranslatorKey">cb5ac1e730e749f399d863a96b99a30f</sys:String>
     <sys:String x:Key="AzureTranslatorEndpoint">https://api.cognitive.microsofttranslator.com/</sys:String>
+    <sys:String x:Key="RandomWordApi">https://random-word-form.repl.co</sys:String>
+    <sys:String x:Key="StableDiffusionImageApi">https://stablediffusionapi.com/api/v3/text2img</sys:String>
     <sys:Double x:Key="ScreenHeight">800</sys:Double>
     <sys:Double x:Key="ScreenWidth">1500</sys:Double>
 </ResourceDictionary>
