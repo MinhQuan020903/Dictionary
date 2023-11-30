@@ -325,18 +325,6 @@ namespace Dictionary.ViewModel
                     Console.WriteLine(ex.Message);
                 }
 
-                //Get example of translation
-                try
-                {
-                    await GetAllSynonymExamples(SourceLang, TranslateLang);
-
-
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
-
 
                 if (IsSuccess)
                 {
@@ -443,7 +431,14 @@ namespace Dictionary.ViewModel
             {
                 string unsplashApiKey = App.Current.Resources["UnsplashApiKey"].ToString();
                 //Connect to Unsplash API with API credential
-                Image = await TextToImageAPI.GetImageFromText(TranslatedText);
+                if (TranslateLang.Equals("vi"))
+                {
+                    Image = await TextToImageAPI.GetImageFromText(Text);
+                }
+                else
+                {
+                    Image = await TextToImageAPI.GetImageFromText(TranslatedText);
+                };
             }
             catch (Exception ex)
             {
@@ -525,6 +520,17 @@ namespace Dictionary.ViewModel
                     TranslatedWord.SetPartsOfSpeech(lookUp.Data.translations.Select(x => x.posTag).ToList());
                     //Get part of speech
                     PartOfSpeech = lookUp.Data.getALlPartOfSpeech();
+
+                    //Get example of translation
+                    try
+                    {
+                        await GetAllSynonymExamples(SourceLang, TranslateLang);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                    }
+
                 }
                 else
                 {
