@@ -4,6 +4,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:local="clr-namespace:Dictionary.View"
+      xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
       mc:Ignorable="d"
       xmlns:uc="clr-namespace:Dictionary.View.UserControlView"
       xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
@@ -14,8 +15,8 @@
       TextOptions.TextRenderingMode="Auto"
       FontFamily="{DynamicResource MaterialDesignFont}"
       DataContext="{StaticResource TranslateParagraphPageVM}"
-      Width="{StaticResource ScreenWidth}"
-      Height="{StaticResource ScreenHeight}"
+      MaxWidth="{StaticResource ScreenWidth}"
+      MaxHeight="{StaticResource ScreenHeight}"
       Background="Transparent">
     <Border Padding="8"
             Background="GhostWhite"
@@ -36,97 +37,153 @@
                         <uc:SideBarView />
                     </StackPanel>
 
-                    <Grid  Grid.Column="1">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="auto" />
-                            <RowDefinition Height="auto" />
-                            <RowDefinition Height="auto" />
-                        </Grid.RowDefinitions>
-                        <StackPanel Margin="20px"
-                                    Grid.Row="0">
-                            <Grid HorizontalAlignment="Center"
-                                  Width="600">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
+                    <Grid Grid.Column="1"
+                          Margin="64 0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <Grid Grid.Column="0">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="auto" />
-                                    <RowDefinition Height="*" />
-                                </Grid.RowDefinitions>
-
-                                <ComboBox Grid.Row="0"
-                                          Grid.Column="0"
-                                          materialDesign:HintAssist.FontFamily="Verdana"
-                                          materialDesign:HintAssist.Hint="Chọn ngôn ngữ nhập vào"
-                                          ItemsSource="{Binding LangList}"
-                                          Style="{StaticResource MaterialDesignOutlinedComboBox}"
-                                          DisplayMemberPath="Language"
-                                          SelectedValuePath="LangCode"
-                                          SelectedValue="{Binding SourceLang, Mode=TwoWay}"
-                                          Margin="0px 0px 0px 10px" SelectionChanged="ComboBox_SelectionChanged" />
-                                <TextBox Grid.Row="1"
-                                         Grid.ColumnSpan="2"
-                                         MinWidth="280"
-                                         MinHeight="80"
-                                         VerticalAlignment="Stretch"
-                                         Style="{StaticResource MaterialDesignOutlinedTextBox}"
-                                         materialDesign:HintAssist.Hint="Nhập đoạn văn để dịch"
-                                         AcceptsReturn="True"
-                                         Text="{Binding SourceParagraph, Mode=TwoWay}"
-                                         TextWrapping="Wrap"
-                                         VerticalScrollBarVisibility="Auto" />
-                            </Grid>
-                        </StackPanel>
-
-                        <StackPanel Grid.Row="1">
-                            <Button Width="150px"
-                                    Height="50px"
-                                    Content="LIGHT"
-                                    Style="{StaticResource MaterialDesignFlatLightBgButton}"
-                                    ToolTip="MaterialDesignFlatLightButton"
-                                    Command="{Binding TranslateCommand}" />
-                        </StackPanel>
-
-                        <StackPanel Margin="20px"
-                                    Grid.Row="2">
-                            <Grid HorizontalAlignment="Center"
-                                  Width="600">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
-                                <Grid.RowDefinitions>
                                     <RowDefinition Height="auto" />
-                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="auto" />
                                 </Grid.RowDefinitions>
 
-                                <ComboBox Grid.Row="0"
-                                          Grid.Column="0"
-                                          materialDesign:HintAssist.FontFamily="Verdana"
-                                          materialDesign:HintAssist.Hint="Chọn ngôn ngữ để dịch"
-                                          ItemsSource="{Binding LangList}"
-                                          Style="{StaticResource MaterialDesignOutlinedComboBox}"
-                                          DisplayMemberPath="Language"
-                                          SelectedValuePath="LangCode"
-                                          SelectedValue="{Binding TranslateLang, Mode=TwoWay}"
-                                          Margin="0px 0px 0px 10px" />
-                                <TextBox Grid.Row="1"
-                                         Grid.ColumnSpan="2"
-                                         MinWidth="280"
-                                         MinHeight="80"
-                                         VerticalAlignment="Stretch"
-                                         Style="{StaticResource MaterialDesignOutlinedTextBox}"
-                                         materialDesign:HintAssist.Hint="Kết quả dịch"
-                                         AcceptsReturn="True"
-                                         Text="{Binding TranslatedParagraph, Mode=OneWay}"
-                                         TextWrapping="Wrap"
-                                         IsEnabled="False"
-                                         VerticalScrollBarVisibility="Auto" />
+                                <StackPanel Margin="20px"
+                                            Grid.Row="0"
+                                            HorizontalAlignment="Stretch">
+                                    <Grid HorizontalAlignment="Stretch"
+                                          MaxWidth="600">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="auto" />
+                                            <RowDefinition Height="*" />
+                                        </Grid.RowDefinitions>
+
+                                        <ComboBox Grid.Row="0"
+                                                  Grid.Column="0"
+                                                  materialDesign:HintAssist.FontFamily="Verdana"
+                                                  materialDesign:HintAssist.Hint="Chọn ngôn ngữ nhập vào"
+                                                  ItemsSource="{Binding LangList}"
+                                                  Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                                                  DisplayMemberPath="Language"
+                                                  SelectedValuePath="LangCode"
+                                                  SelectedValue="{Binding SourceLang, Mode=TwoWay}"
+                                                  Margin="0px 0px 0px 10px"
+                                                  SelectionChanged="ComboBox_SelectionChanged" />
+                                        <TextBox Grid.Row="1"
+                                                 Grid.ColumnSpan="2"
+                                                 MinWidth="280"
+                                                 MinHeight="80"
+                                                 VerticalAlignment="Stretch"
+                                                 Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                                                 materialDesign:HintAssist.Hint="Nhập đoạn văn để dịch"
+                                                 AcceptsReturn="True"
+                                                 Text="{Binding SourceParagraph, Mode=TwoWay}"
+                                                 TextWrapping="Wrap"
+                                                 VerticalScrollBarVisibility="Auto" />
+                                    </Grid>
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="1">
+                                    <Button Width="150px"
+                                            Height="50px"
+                                            Content="Dịch"
+                                            Style="{StaticResource MaterialDesignFlatLightBgButton}"
+                                            ToolTip="MaterialDesignFlatLightButton"
+                                            Command="{Binding TranslateCommand}" />
+                                </StackPanel>
+
+                                <StackPanel Margin="20px"
+                                            Grid.Row="2"
+                                            HorizontalAlignment="Stretch">
+                                    <Grid HorizontalAlignment="Stretch"
+                                          MaxWidth="600">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="auto" />
+                                            <RowDefinition Height="*" />
+                                        </Grid.RowDefinitions>
+
+                                        <ComboBox Grid.Row="0"
+                                                  Grid.Column="0"
+                                                  materialDesign:HintAssist.FontFamily="Verdana"
+                                                  materialDesign:HintAssist.Hint="Chọn ngôn ngữ để dịch"
+                                                  ItemsSource="{Binding LangList}"
+                                                  Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                                                  DisplayMemberPath="Language"
+                                                  SelectedValuePath="LangCode"
+                                                  SelectedValue="{Binding TranslateLang, Mode=TwoWay}"
+                                                  Margin="0px 0px 0px 10px" />
+                                        <TextBox Grid.Row="1"
+                                                 Grid.ColumnSpan="2"
+                                                 MinWidth="280"
+                                                 MinHeight="80"
+                                                 VerticalAlignment="Stretch"
+                                                 Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                                                 materialDesign:HintAssist.Hint="Kết quả dịch"
+                                                 AcceptsReturn="True"
+                                                 Text="{Binding TranslatedParagraph, Mode=OneWay}"
+                                                 TextWrapping="Wrap"
+                                                 IsEnabled="False"
+                                                 VerticalScrollBarVisibility="Auto" />
+                                    </Grid>
+                                </StackPanel>
                             </Grid>
-                        </StackPanel>
+
+
+                            <Grid Grid.Column="1"
+                                  MinWidth="300"
+                                  MaxWidth="300">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="auto" />
+                                        <RowDefinition Height="*" />
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock FontSize="18"
+                                               HorizontalAlignment="Center"
+                                               Grid.Row="0"
+                                               Margin="0 0 0 10">Đoạn văn đã dịch</TextBlock>
+
+                                    <ListBox Grid.Row="1"
+                                             Name="savedParagraphs"
+                                             HorizontalAlignment="Stretch"
+                                             VerticalAlignment="Top"
+                                             HorizontalContentAlignment="Stretch"
+                                             ItemsSource="{Binding SavedParagraphs,Mode=TwoWay}">
+                                        <i:Interaction.Triggers>
+                                            <i:EventTrigger EventName="SelectionChanged">
+                                                <i:InvokeCommandAction Command="{Binding DataContext.SavedParagraphsSelectionChangedCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                                                       CommandParameter="{Binding ElementName=savedParagraphs, Path=SelectedItem}" />
+                                            </i:EventTrigger>
+                                        </i:Interaction.Triggers>
+                                        <ListBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border BorderBrush="black"
+                                                        BorderThickness="0 0 0 1"
+                                                        Padding="10"
+                                                        Margin="-8">
+                                                    <TextBlock Text="{Binding SourceParagraph}"
+                                                               TextTrimming="WordEllipsis"
+                                                               HorizontalAlignment="Center" />
+                                                </Border>
+                                            </DataTemplate>
+                                        </ListBox.ItemTemplate>
+                                    </ListBox>
+                                </Grid>
+                            </Grid>
+                        </Grid>
                     </Grid>
-
                 </Grid>
             </materialDesign:Card>
         </Grid>

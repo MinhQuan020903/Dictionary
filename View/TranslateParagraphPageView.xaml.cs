@@ -24,6 +24,7 @@ namespace Dictionary.View
             this.Resources.MergedDictionaries.Add(new ResourceDictionary());
             this.Resources.MergedDictionaries[0].Source = new Uri("Resource/String.xaml", UriKind.Relative);
 
+
             InitializeComponent();
         }
 
