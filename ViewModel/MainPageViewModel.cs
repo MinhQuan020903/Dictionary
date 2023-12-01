@@ -177,9 +177,8 @@ namespace Dictionary.ViewModel
             Environment.SetEnvironmentVariable("SPEECH_REGION", "southeastasia");*/
 
             //Load saved words from Log file
-            SavedWords = new ObservableCollection<SavedWord>();
+            SavedWords = LogFile.LoadTranslatedItemsFromFile();
 
-            LoadTranslatedItemsFromFile();
             string saveWordJson = JsonConvert.SerializeObject(SavedWords);
 
 
@@ -362,65 +361,12 @@ namespace Dictionary.ViewModel
                         SavedWords.Add(translationItem);
 
                         // Save the list of translated items to a file
-                        SaveTranslatedItemsToFile("..\\Log\\SavedWord.json");
+                        LogFile.SaveTranslatedItemsToFile("..\\Log\\SavedWord.json", SavedWords);
                     }
                 }
 
 
 
-            }
-        }
-
-        public void SaveTranslatedItemsToFile(string filePath)
-        {
-            try
-            {
-                // Get the base directory where the application is running
-
-                string baseDirectory = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\.."));
-                // Check if the "Log" folder exists, if not, create it
-                string logFolderPath = Path.Combine(baseDirectory, "Log");
-                if (!Directory.Exists(logFolderPath))
-                {
-                    Directory.CreateDirectory(logFolderPath);
-                }
-
-                // Construct the full file path
-                string fullFilePath = Path.Combine(logFolderPath, filePath);
-
-                // Serialize and save translated items to a file
-                string translatedItemsJson = JsonConvert.SerializeObject(SavedWords);
-                File.WriteAllText(fullFilePath, translatedItemsJson);
-
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-        }
-
-
-
-        public void LoadTranslatedItemsFromFile()
-        {
-            try
-            {
-                string baseDirectory = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\.."));
-                // Check if the "Log" folder exists, if not, create it
-                string logFolderPath = Path.Combine(baseDirectory, "Log\\SavedWord.json");
-
-                if (File.Exists(logFolderPath))
-                {
-                    string translatedItemsJson = File.ReadAllText(logFolderPath);
-                    SavedWords = new ObservableCollection<SavedWord>(JsonConvert.DeserializeObject<List<SavedWord>>(translatedItemsJson));
-
-                }
-                else
-                { }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
             }
         }
 

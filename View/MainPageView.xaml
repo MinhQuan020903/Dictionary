@@ -44,7 +44,7 @@
 
             <StackPanel Grid.Column="1">
                 <materialDesign:Card
-                    Padding="20px"
+                    Padding="14"
                     materialDesign:ElevationAssist.Elevation="Dp0"
                     Background="Transparent"
                     BorderThickness="0">
@@ -153,7 +153,7 @@
                                         CommandParameter="{Binding Text, ElementName=tbSearch}"
                                         IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Page}}"
                                         ToolTip="Icon">
-                                        <TextBlock>Translate</TextBlock>
+                                        <TextBlock>Dịch từ</TextBlock>
                                     </Button>
                                 </Grid>
 
@@ -207,9 +207,12 @@
                                     Visibility="{Binding IsTranslatedGridVisible}">
 
                                     <Grid.RowDefinitions>
+                                        <RowDefinition Height="*" />
                                         <RowDefinition Height="2*" />
                                         <RowDefinition Height="3*" />
                                     </Grid.RowDefinitions>
+
+
                                     <Border
                                         Grid.Row="0"
                                         Width="800px"
@@ -295,10 +298,14 @@
 
                                     </Border>
 
-
-
-                                    <Border
+                                    <Label
                                         Grid.Row="1"
+                                        Margin="30,10,20,0"
+                                        Content="Từ đồng nghĩa"
+                                        FontSize="20"
+                                        FontWeight="DemiBold" />
+                                    <Border
+                                        Grid.Row="2"
                                         Width="800px"
                                         Margin="30,10,30,30"
                                         Padding="8"

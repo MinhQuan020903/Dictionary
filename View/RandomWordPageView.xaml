@@ -42,7 +42,7 @@
                 <uc:SideBarView />
             </StackPanel>
 
-            <Grid Grid.Column="1">
+            <Grid Grid.Column="1" Margin="30,30,30,30">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="auto" />
                     <RowDefinition Height="auto" />
@@ -52,7 +52,13 @@
                         <RowDefinition Height="auto" />
                         <RowDefinition Height="auto" />
                     </Grid.RowDefinitions>
-                    <Label Grid.Row="0" Content="Chọn ký tự cần tìm kiếm" />
+                    <Label
+                        Grid.Row="0"
+                        Margin="0,0,0,10"
+                        Content="Chọn ký tự cần tìm kiếm"
+                        FontSize="24"
+                        FontWeight="DemiBold"
+                        Foreground="#663fb5" />
                     <Grid Grid.Row="1">
                         <StackPanel Orientation="Horizontal">
                             <ItemsControl ItemsSource="{Binding Characters}">
@@ -65,37 +71,58 @@
                                     <DataTemplate>
                                         <Button
                                             Margin="5,5,5,5"
+                                            materialDesign:ButtonAssist.CornerRadius="10"
                                             Command="{Binding ElementName=RandomWordPage, Path=DataContext.SelectCharacterCommand}"
                                             CommandParameter="{Binding}"
                                             Content="{Binding Path=.}"
-                                            Style="{StaticResource MaterialDesignFlatMidBgButton}" />
+                                            Style="{StaticResource MaterialDesignRaisedButton}" />
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
                         </StackPanel>
                     </Grid>
                 </Grid>
-                <Grid Grid.Row="1">
+                <ProgressBar
+                    Grid.Row="1"
+                    Width="50px"
+                    IsIndeterminate="True"
+                    Style="{StaticResource MaterialDesignCircularProgressBar}"
+                    Visibility="{Binding IsLoading}"
+                    Value="35" />
+                <Grid
+                    Grid.Row="1"
+                    Margin="0,30,0,0"
+                    Visibility="{Binding IsRandomWordsVisible}">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="auto" />
                         <RowDefinition Height="auto" />
                     </Grid.RowDefinitions>
-                    <Label Grid.Row="0" Content="Danh sách từ" />
+                    <Label
+                        Grid.Row="0"
+                        Margin="0,0,0,10"
+                        Content="Danh sách từ"
+                        FontSize="24"
+                        FontWeight="DemiBold"
+                        Foreground="#663fb5" />
                     <StackPanel Grid.Row="1" Orientation="Horizontal">
                         <ItemsControl ItemsSource="{Binding RandomWords}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <UniformGrid Columns="3" Rows="10" />
+                                    <UniformGrid Columns="6" Rows="10" />
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Button
                                         Margin="5,5,5,5"
+                                        materialDesign:ButtonAssist.CornerRadius="10"
+                                        Background="White"
+                                        BorderBrush="#663fb5"
                                         Command="{Binding ElementName=RandomWordPage, Path=DataContext.SearchCharacterCommand}"
                                         CommandParameter="{Binding}"
                                         Content="{Binding Path=.}"
-                                        Style="{StaticResource MaterialDesignFlatButton}" />
+                                        Foreground="#663fb5"
+                                        Style="{StaticResource MaterialDesignOutlinedButton}" />
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
