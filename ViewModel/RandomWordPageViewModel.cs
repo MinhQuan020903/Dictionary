@@ -4,6 +4,7 @@ using Dictionary.View;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Windows;
 using System.Windows.Input;
 using System.Windows.Navigation;
 
@@ -34,6 +35,28 @@ namespace Dictionary.ViewModel
             }
         }
 
+        private Visibility _isRandomWordsVisible;
+        public Visibility IsRandomWordsVisible
+        {
+            get { return _isRandomWordsVisible; }
+            set
+            {
+                _isRandomWordsVisible = value;
+                OnPropertyChanged(nameof(IsRandomWordsVisible));
+            }
+        }
+
+        private Visibility _isLoading;
+        public Visibility IsLoading
+        {
+            get { return _isLoading; }
+            set
+            {
+                _isLoading = value;
+                OnPropertyChanged(nameof(IsLoading));
+            }
+        }
+
         private NavigationService _navigationService = NavigationServiceModel.NavigationService;
         public ICommand SelectCharacterCommand { get; set; }
         public ICommand SearchCharacterCommand { get; set; }
@@ -44,12 +67,16 @@ namespace Dictionary.ViewModel
             SearchCharacterCommand = new RelayCommand<object>(SearchCharacterCommandCanExecute, SearchCharacterCommandExecute);
             Characters = new ObservableCollection<string>(Enumerable.Range('A', 26).Select(c => ((char)c).ToString()));
 
+            IsRandomWordsVisible = Visibility.Hidden;
+            IsLoading = Visibility.Hidden;
 
         }
 
         private void SelectCharacterCommandExecute(object obj)
         {
             GetRandomWordsFromStartCharacter(obj.ToString());
+            IsRandomWordsVisible = Visibility.Hidden;
+            IsLoading = Visibility.Visible;
         }
 
 
@@ -62,7 +89,19 @@ namespace Dictionary.ViewModel
         private async void GetRandomWordsFromStartCharacter(string character)
         {
             List<string> randomWordsList = await RandomWordAPI.GetRandomWordsFromStartCharacter(character);
-            RandomWords = new ObservableCollection<string>(randomWordsList);
+            if (randomWordsList.Count > 0)
+            {
+                IsRandomWordsVisible = Visibility.Visible;
+                IsLoading = Visibility.Hidden;
+                RandomWords = new ObservableCollection<string>(randomWordsList);
+            }
+            else
+            {
+                IsRandomWordsVisible = Visibility.Hidden;
+                IsLoading = Visibility.Hidden;
+                MessageBox.Show("Lỗi trong quá trình tải dữ liệu chữ");
+            }
+
         }
 
 
