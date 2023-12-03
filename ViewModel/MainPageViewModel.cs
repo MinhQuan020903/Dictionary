@@ -21,7 +21,6 @@ namespace Dictionary.ViewModel
 {
     public class MainPageViewModel : BaseViewModel
     {
-        private ILoggerFactory loggerFactory;
         private ILogger<MainPageViewModel> logger;
 
         private ObservableCollection<SavedWord> _savedWords;
@@ -160,6 +159,7 @@ namespace Dictionary.ViewModel
         private Visibility _isTranslatedGridVisible = Visibility.Hidden;
         private Visibility _isSynonymGridVisible = Visibility.Hidden;
         private Visibility _isLoading = Visibility.Hidden;
+        private Visibility _isSpeechToTextGridVisible = Visibility.Hidden;
         public Visibility IsLoading
         {
             get => _isLoading;
@@ -187,6 +187,17 @@ namespace Dictionary.ViewModel
             {
                 _isSynonymGridVisible = value;
                 OnPropertyChanged(nameof(IsSynonymGridVisible));
+
+            }
+        }
+
+        public Visibility IsSpeechToTextGridVisible
+        {
+            get => _isSpeechToTextGridVisible;
+            set
+            {
+                _isSpeechToTextGridVisible = value;
+                OnPropertyChanged(nameof(IsSpeechToTextGridVisible));
 
             }
         }
@@ -340,7 +351,38 @@ namespace Dictionary.ViewModel
 
         private async void ButtonCommandSpeechToTextExecute(object obj)
         {
-            Text = await SpeechToTextAPI.SpeechToText(SourceLang, logger);
+            if (IsTranslatedGridVisible == Visibility.Visible)
+            {
+                IsTranslatedGridVisible = Visibility.Hidden;
+            }
+            IsSpeechToTextGridVisible = Visibility.Visible;
+            Task<string> speechToTextTask = SpeechToTextAPI.SpeechToText(SourceLang, logger);
+
+            // Wait for either the SpeechToText operation to complete or a timeout of 5 seconds
+            Task completedTask = await Task.WhenAny(speechToTextTask, Task.Delay(5000));
+
+            if (completedTask == speechToTextTask)
+            {
+                // SpeechToText operation completed within the timeout
+                Text = await speechToTextTask;
+
+                if (string.IsNullOrEmpty(Text))
+                {
+                    MessageBox.Show("Không nhận được giọng nói.");
+                }
+                else
+                {
+                    IsSpeechToTextGridVisible = Visibility.Hidden;
+                    ButtonCommandTranslatorExecute(null);
+                }
+            }
+            else
+            {
+                // Timeout occurred
+                IsSpeechToTextGridVisible = Visibility.Hidden;
+            }
+
+
         }
 
         private bool ButtonCommandTranslatorCanExecute(object obj)
