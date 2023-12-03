@@ -74,14 +74,7 @@ namespace Dictionary.ViewModel
             Characters = new ObservableCollection<string>(Enumerable.Range('A', 26).Select(c => ((char)c).ToString()));
 
             //Create logger object
-            loggerFactory = LoggerFactory.Create(builder =>
-            {
-                LoggerConfiguration loggerConfiguration = new LoggerConfiguration()
-                .WriteTo.File("..\\Log\\Error\\Log.txt");
-
-                builder.AddSerilog(loggerConfiguration.CreateLogger());
-            });
-            logger = loggerFactory.CreateLogger<RandomWordPageViewModel>();
+            logger = LoggerProvider.CreateLogger<RandomWordPageViewModel>();
 
             IsRandomWordsVisible = Visibility.Hidden;
             IsLoading = Visibility.Hidden;

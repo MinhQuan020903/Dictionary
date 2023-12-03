@@ -5,6 +5,7 @@ using Dictionary.Model.Word;
 using Microsoft.Identity.Client.NativeInterop;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;

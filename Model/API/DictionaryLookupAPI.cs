@@ -1,5 +1,7 @@
 ﻿
 using Dictionary.Model.JSON;
+using Dictionary.ViewModel;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -14,7 +16,7 @@ namespace Dictionary.Model.API
         private static readonly string key = App.Current.Resources["AzureTranslatorKey"].ToString();
         private static readonly string endpoint = App.Current.Resources["AzureTranslatorEndpoint"].ToString();
 
-        public static async Task<ApiResponse<DictionaryLookup>> LookUp(string text, string? sourceLangCode = "vi", string? translateLangCode = "en")
+        public static async Task<ApiResponse<DictionaryLookup>> LookUp(string text, string? sourceLangCode = "vi", string? translateLangCode = "en", ILogger<BaseViewModel>? logger = null)
         {
             // Input and output languages are defined as parameters.
             string route = $"/dictionary/lookup?api-version=3.0&from={sourceLangCode}&to={translateLangCode}";
@@ -42,7 +44,7 @@ namespace Dictionary.Model.API
                         string result = await response.Content.ReadAsStringAsync();
                         List<DictionaryLookup> dictionaryLookupList = JsonConvert.DeserializeObject<List<DictionaryLookup>>(result);
 
-                        if (dictionaryLookupList != null)
+                        if (dictionaryLookupList != null || dictionaryLookupList.Count > 0)
                         {
                             return new ApiResponse<DictionaryLookup>
                             {
@@ -52,6 +54,7 @@ namespace Dictionary.Model.API
                         }
                         else
                         {
+                            logger.LogError($"Lookup for word failed. Error code: {response.StatusCode}");
                             return new ApiResponse<DictionaryLookup>
                             {
                                 Data = null,
@@ -59,7 +62,7 @@ namespace Dictionary.Model.API
                                 Error = new ErrorDetails
                                 {
                                     Code = 0,
-                                    Message = "Couldn't translate."
+                                    Message = $"Lookup for word failed. Error code: {response.StatusCode}."
                                 }
                             };
                         }
@@ -69,8 +72,8 @@ namespace Dictionary.Model.API
                     {
                         // Handle HTTP errors with specific error codes
                         // Parse the JSON error response
-
                         var errorResponse = JsonConvert.DeserializeObject<ApiResponse<string>>(await response.Content.ReadAsStringAsync());
+                        logger.LogError($"Lookup for word failed. Error code: {errorResponse.Error}");
 
                         return new ApiResponse<DictionaryLookup>
                         {
@@ -82,6 +85,8 @@ namespace Dictionary.Model.API
                 }
                 catch (Exception e)
                 {
+
+                    logger.LogError($"Lookup for word failed. Exception: {e.Message}");
                     return new ApiResponse<DictionaryLookup>
                     {
                         Data = null,

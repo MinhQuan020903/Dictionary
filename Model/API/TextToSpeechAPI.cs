@@ -1,4 +1,6 @@
-﻿using Microsoft.CognitiveServices.Speech;
+﻿using Dictionary.ViewModel;
+using Microsoft.CognitiveServices.Speech;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 
@@ -39,22 +41,21 @@ namespace Dictionary.Model
             }
         }
 
-        static void OutputSpeechSynthesisResult(SpeechSynthesisResult speechSynthesisResult, string text)
+        static void OutputSpeechSynthesisResult(SpeechSynthesisResult speechSynthesisResult, string text, ILogger<BaseViewModel> logger)
         {
             switch (speechSynthesisResult.Reason)
             {
                 case ResultReason.SynthesizingAudioCompleted:
-                    Console.WriteLine($"Speech synthesized for text: [{text}]");
                     break;
                 case ResultReason.Canceled:
                     var cancellation = SpeechSynthesisCancellationDetails.FromResult(speechSynthesisResult);
-                    Console.WriteLine($"CANCELED: Reason={cancellation.Reason}");
+                    logger.LogError($"Speech synthesis canceled. Reason: {cancellation.Reason}");
 
                     if (cancellation.Reason == CancellationReason.Error)
                     {
-                        Console.WriteLine($"CANCELED: ErrorCode={cancellation.ErrorCode}");
-                        Console.WriteLine($"CANCELED: ErrorDetails=[{cancellation.ErrorDetails}]");
-                        Console.WriteLine($"CANCELED: Did you set the speech resource key and region values?");
+                        logger.LogError($"Speech synthesis CANCELED: ErrorCode={cancellation.ErrorCode}");
+                        logger.LogError($"Speech synthesis CANCELED: ErrorDetails=[{cancellation.ErrorDetails}]");
+                        logger.LogError($"Speech synthesis CANCELED: Did you set the speech resource key and region values?");
                     }
                     break;
                 default:
@@ -62,14 +63,14 @@ namespace Dictionary.Model
             }
         }
 
-        public static async Task TextToSpeech(string text, string from, string to)
+        public static async Task TextToSpeech(string text, string from, string to, ILogger<BaseViewModel>? logger = null)
         {
             // Initialize the speech synthesizer if not already initialized
             await InitializeAsync(from, to);
 
             // Use the preloaded speechSynthesizer instance
             var speechSynthesisResult = await speechSynthesizer.SpeakTextAsync(text);
-            OutputSpeechSynthesisResult(speechSynthesisResult, text);
+            OutputSpeechSynthesisResult(speechSynthesisResult, text, logger);
         }
     }
 }

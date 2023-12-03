@@ -1,4 +1,6 @@
 ﻿using Dictionary.Model.JSON;
+using Dictionary.ViewModel;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -13,7 +15,7 @@ namespace Dictionary.Model.API
         private static readonly string key = App.Current.Resources["AzureTranslatorKey"].ToString();
         private static readonly string endpoint = App.Current.Resources["AzureTranslatorEndpoint"].ToString();
 
-        public static async Task<ApiResponse<DictionaryExample>> GetExample(string text, string translation, string? sourceLangCode = "vi", string? translateLangCode = "en")
+        public static async Task<ApiResponse<DictionaryExample>> GetExample(string text, string translation, string? sourceLangCode = "vi", string? translateLangCode = "en", ILogger<BaseViewModel>? logger = null)
         {
             // Input and output languages are defined as parameters.
             string route = $"/dictionary/examples?api-version=3.0&from={sourceLangCode}&to={translateLangCode}";
@@ -42,7 +44,7 @@ namespace Dictionary.Model.API
                         string result = await response.Content.ReadAsStringAsync();
                         List<DictionaryExample> dictionaryExamples = JsonConvert.DeserializeObject<List<DictionaryExample>>(result);
 
-                        if (dictionaryExamples != null)
+                        if (dictionaryExamples != null || dictionaryExamples.Count > 0)
                         {
                             return new ApiResponse<DictionaryExample>
                             {
@@ -52,6 +54,7 @@ namespace Dictionary.Model.API
                         }
                         else
                         {
+                            logger.LogError($"Get example for word failed. Error code: {response.StatusCode}");
                             return new ApiResponse<DictionaryExample>
                             {
                                 Data = null,
@@ -71,6 +74,7 @@ namespace Dictionary.Model.API
                         // Parse the JSON error response
 
                         var errorResponse = JsonConvert.DeserializeObject<ApiResponse<string>>(await response.Content.ReadAsStringAsync());
+                        logger.LogError($"Get example for word failed. Error code: {errorResponse.Error}");
 
                         return new ApiResponse<DictionaryExample>
                         {
@@ -82,6 +86,7 @@ namespace Dictionary.Model.API
                 }
                 catch (Exception e)
                 {
+                    logger.LogError($"Get example for word failed. Exception: " + e.Message);
                     return new ApiResponse<DictionaryExample>
                     {
                         Data = null,

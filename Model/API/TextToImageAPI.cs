@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using Dictionary.ViewModel;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using RestSharp;
 using System;
 using System.Collections.Generic;
@@ -25,7 +27,7 @@ namespace Dictionary.Model
     }
     public class TextToImageAPI
     {
-        public static async Task<string> GetImageFromText(string text)
+        public static async Task<string> GetImageFromText(string text, ILogger<BaseViewModel> logger = null)
         {
             string unsplashApiKey = App.Current.Resources["UnsplashApiKey"].ToString();
             //Connect to Unsplash API with API credential
@@ -35,13 +37,18 @@ namespace Dictionary.Model
                 //Search images based from text
                 var photosFound = await client.SearchPhotos(text, 1, 1);
                 //Get first image
+                if (photosFound.Count == 0)
+                {
+                    logger.LogError("Get image from text failed. Reason: No image found");
+                    return "";
+                }
                 string url = photosFound[0].Urls.Small;
                 return url;
 
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.ToString());
+                logger.LogError($"Get image from text failed. Error code: {e.Message}");
             }
             return "";
         }
@@ -66,8 +73,7 @@ namespace Dictionary.Model
                 // Construct the request body
                 var requestBody = new
                 {
-                    w
-                        aspect_ratio = "landscape",
+                    aspect_ratio = "landscape",
                     guidance_scale = 7.5,
                     negprompt = "a blank canvas",
                     prompt = prompt,
@@ -124,7 +130,12 @@ namespace Dictionary.Model
 
                     // Access the desired information from the response
                     // Example: return responseObject.YourProperty;
-                    return "https://random.imagecdn.app/200/150";
+                    else
+                    {
+
+                        return "https://random.imagecdn.app/200/150";
+                    }
+
                 }
                 else
                 {

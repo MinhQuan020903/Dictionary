@@ -12,6 +12,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Resource\Image\audio.gif" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Resource\Image\audio.gif">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Azure.Core" Version="1.35.0" />
     <PackageReference Include="Azure.Identity" Version="1.10.2" />
     <PackageReference Include="MaterialDesignThemes" Version="4.9.0" />
@@ -32,6 +42,7 @@
     <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
     <PackageReference Include="System.ObjectModel" Version="4.3.0" />
     <PackageReference Include="unsplasharp.api" Version="0.7.0" />
+    <PackageReference Include="WpfAnimatedGif" Version="2.0.2" />
   </ItemGroup>
 
 </Project>

@@ -1,4 +1,7 @@
-﻿using Dictionary.Model.API;
+﻿using Azure;
+using Dictionary.Model.API;
+using Dictionary.ViewModel;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.Net.Http;
@@ -12,7 +15,7 @@ namespace Dictionary.Model
         private static readonly string key = App.Current.Resources["AzureTranslatorKey"].ToString();
         private static readonly string endpoint = App.Current.Resources["AzureTranslatorEndpoint"].ToString();
 
-        public static async Task<ApiResponse<string>> Translate(string text, string? sourceLangCode = "vi", string? translateLangCode = "en")
+        public static async Task<ApiResponse<string>> Translate(string text, string? sourceLangCode = "vi", string? translateLangCode = "en", ILogger<BaseViewModel>? logger = null)
         {
             // Input and output languages are defined as parameters.
             string route = $"/translate?api-version=3.0&from={sourceLangCode}&to={translateLangCode}";
@@ -49,6 +52,8 @@ namespace Dictionary.Model
                         // Handle HTTP errors with specific error codes
                         // Parse the JSON error response
 
+                        logger.LogError($"Translate word failed. Error code: {response.StatusCode}");
+
                         var errorResponse = JsonConvert.DeserializeObject<ApiResponse<string>>(await response.Content.ReadAsStringAsync());
 
                         return new ApiResponse<string>
@@ -61,10 +66,11 @@ namespace Dictionary.Model
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e.Message);
+                    logger.LogError($"Translate word failed. Exception: " + e.Message);
                 }
 
             }
+            logger.LogError($"Translate word failed.");
             return new ApiResponse<string>
             {
                 Data = "",
@@ -72,7 +78,7 @@ namespace Dictionary.Model
                 Error = new ErrorDetails
                 {
                     Code = 0,
-                    Message = "Unknown error"
+                    Message = "Translate word failed."
                 }
             };
         }
