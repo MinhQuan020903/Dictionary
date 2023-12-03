@@ -52,8 +52,12 @@ namespace Dictionary.ViewModel
             get { return _sourceLang; }
             set
             {
-                _sourceLang = value;
-                OnPropertyChanged(nameof(SourceLang));
+                if (_sourceLang != value)
+                {
+                    _sourceLang = value;
+                    OnPropertyChanged(nameof(SourceLang));
+                    UpdateTranslateLang();
+                }
             }
         }
 
@@ -63,10 +67,25 @@ namespace Dictionary.ViewModel
             get { return _translateLang; }
             set
             {
-                _translateLang = value;
-                OnPropertyChanged(nameof(TranslateLang));
+                if (_translateLang != value)
+                {
+                    _translateLang = value;
+                    OnPropertyChanged(nameof(TranslateLang));
+                    UpdateSourceLang();
+                }
             }
         }
+
+        private void UpdateTranslateLang()
+        {
+            TranslateLang = (_sourceLang == "vi") ? "en" : "vi";
+        }
+
+        private void UpdateSourceLang()
+        {
+            SourceLang = (_translateLang == "vi") ? "en" : "vi";
+        }
+
 
         //Data binding for text box and image
         private Word _translatedWord;
