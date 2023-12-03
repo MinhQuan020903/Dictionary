@@ -3,8 +3,10 @@ using Dictionary.Model.API;
 
 using Dictionary.Model.JSON;
 using Dictionary.Model.Word;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -18,6 +20,9 @@ namespace Dictionary.ViewModel
 {
     public class MainPageViewModel : BaseViewModel
     {
+        private ILoggerFactory loggerFactory;
+        private ILogger<MainPageViewModel> logger;
+
         private ObservableCollection<SavedWord> _savedWords;
 
         public ObservableCollection<SavedWord> SavedWords
@@ -177,9 +182,10 @@ namespace Dictionary.ViewModel
             Environment.SetEnvironmentVariable("SPEECH_REGION", "southeastasia");*/
 
             //Load saved words from Log file
-            SavedWords = LogFile.LoadTranslatedItemsFromFile();
+            SavedWords = SaveFile.LoadTranslatedItemsFromFile();
 
             string saveWordJson = JsonConvert.SerializeObject(SavedWords);
+
 
 
             //Command when loading main windows
@@ -195,6 +201,18 @@ namespace Dictionary.ViewModel
             ButtonAudioCommand = new RelayCommand<object>(ButtonCommandAudioCanExecute, ButtonCommandAudioExecute);
             ButtonTranslatorCommand = new RelayCommand<object>(ButtonCommandTranslatorCanExecute, ButtonCommandTranslatorExecute);
             SavedWordButtonCommand = new RelayCommand<SavedWord>(SavedWordButtonCanExecute, SavedWordButtonExecute);
+
+
+            string baseDirectory = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\.."));
+            //Create logger object
+            loggerFactory = LoggerFactory.Create(builder =>
+            {
+                LoggerConfiguration loggerConfiguration = new LoggerConfiguration()
+                .WriteTo.File(baseDirectory + "\\Log\\Error\\Log.txt", rollingInterval: RollingInterval.Day);
+
+                builder.AddSerilog(loggerConfiguration.CreateLogger());
+            });
+            logger = loggerFactory.CreateLogger<MainPageViewModel>();
 
 
             LangList = new List<LanguageObject>();
@@ -211,7 +229,7 @@ namespace Dictionary.ViewModel
             //Load saved words from Log file
             SavedWords = new ObservableCollection<SavedWord>();
 
-            LoadTranslatedItemsFromFile();
+            SavedWords = SaveFile.LoadTranslatedItemsFromFile();
             string saveWordJson = JsonConvert.SerializeObject(SavedWords);
 
 
@@ -229,6 +247,18 @@ namespace Dictionary.ViewModel
             ButtonTranslatorCommand = new RelayCommand<object>(ButtonCommandTranslatorCanExecute, ButtonCommandTranslatorExecute);
             SavedWordButtonCommand = new RelayCommand<SavedWord>(SavedWordButtonCanExecute, SavedWordButtonExecute);
 
+            //Create logger object
+            string baseDirectory = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\.."));
+            //Create logger object
+            loggerFactory = LoggerFactory.Create(builder =>
+            {
+                LoggerConfiguration loggerConfiguration = new LoggerConfiguration()
+                .WriteTo.File(baseDirectory + "\\Log\\Error\\Log.txt", rollingInterval: RollingInterval.Day)
+                ;
+
+                builder.AddSerilog(loggerConfiguration.CreateLogger());
+            });
+            logger = loggerFactory.CreateLogger<MainPageViewModel>();
 
             LangList = new List<LanguageObject>();
             LangList.Add(new LanguageObject("Tiếng Việt", "vi"));
@@ -243,6 +273,7 @@ namespace Dictionary.ViewModel
 
         private void SavedWordButtonExecute(SavedWord selectedSavedWord)
         {
+
             // Set properties in the view model based on the selected SavedWord
             Text = selectedSavedWord.Text;
             TranslatedText = selectedSavedWord.TranslatedText;
@@ -300,34 +331,18 @@ namespace Dictionary.ViewModel
                 IsLoading = Visibility.Visible;
                 TranslatedWord = new Word();
                 //Translate text
-                try
-                {
-                    await TranslateInput(SourceLang, TranslateLang);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
+                await TranslateInput(SourceLang, TranslateLang);
 
                 //Get synonyms and parts of speech of word
-                try
-                {
-                    await Task.WhenAll(
+                await Task.WhenAll(
                         //Get synonyms and parts of speech of word
                         DictionaryLookupInput(SourceLang, TranslateLang),
                         //Get example image from text
                         GetImageOfTranslatedText()
                     );
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
-
 
                 if (IsSuccess)
                 {
-
                     //Binding data to ListView
                     WordListView = new WordListView();
                     WordListView.PopulateWordListView(TranslatedWord.GetExamplesOfSynonym());
@@ -361,12 +376,15 @@ namespace Dictionary.ViewModel
                         SavedWords.Add(translationItem);
 
                         // Save the list of translated items to a file
-                        LogFile.SaveTranslatedItemsToFile("..\\Log\\SavedWord.json", SavedWords);
+                        SaveFile.SaveTranslatedItemsToFile("..\\Log\\SavedWord.json", SavedWords);
                     }
                 }
-
-
-
+                else
+                {
+                    MessageBox.Show("Lỗi khi dịch từ.");
+                    IsLoading = Visibility.Hidden;
+                    logger.LogError("Error when translating input.");
+                }
             }
         }
 
@@ -388,7 +406,8 @@ namespace Dictionary.ViewModel
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+
+                logger.LogError("Error when getting image of translated text.");
             }
         }
         private async Task TranslateInput(string from, string to)
@@ -416,39 +435,26 @@ namespace Dictionary.ViewModel
                             // Check if the property exists and get its value
                             if (textToken != null)
                             {
-                                //Check if the translated text is the same as the original text
-                                //If it is, show error message (because the API cannot translate the text)
-                                if (string.Equals(textToken.ToString(), Text, StringComparison.OrdinalIgnoreCase))
-                                {
-                                    MessageBox.Show("Vui lòng nhập lại từ.");
-                                    IsLoading = Visibility.Hidden;
-                                    IsTranslatedGridVisible = Visibility.Hidden;
-                                }
-                                else
-                                {
-                                    // 'translatedText' now contains the value of the "text" property
-
-                                    TranslatedWord.SetTranslatedWord(textToken.ToString());
-                                    TranslatedText = textToken.ToString();
-
-                                }
-
+                                // 'translatedText' now contains the value of the "text" property
+                                TranslatedWord.SetTranslatedWord(textToken.ToString());
+                                TranslatedText = textToken.ToString();
                             }
                         }
 
                     }
                     else
                     {
-                        MessageBox.Show("Vui lòng nhập lại từ.");
+                        MessageBox.Show("Dịch từ thất bại.");
                         IsLoading = Visibility.Hidden;
                         IsTranslatedGridVisible = Visibility.Hidden;
+                        logger.LogError("Cannot translate input.");
                     }
                 }
 
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                logger.LogError("Error when translating input.");
             }
         }
 
@@ -474,21 +480,22 @@ namespace Dictionary.ViewModel
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine(ex.Message);
+                        logger.LogError("Error when getting all synonym examples.");
                     }
 
                 }
                 else
                 {
-                    MessageBox.Show("Vui lòng nhập lại từ.");
+                    MessageBox.Show("Không tìm được các thuộc tính của từ.");
                     IsLoading = Visibility.Hidden;
                     IsTranslatedGridVisible = Visibility.Hidden;
+                    logger.LogError("Error when looking up dictionary.");
                 }
 
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                logger.LogError("Error when looking up dictionary.");
             }
         }
 
@@ -517,16 +524,17 @@ namespace Dictionary.ViewModel
                 }
                 else
                 {
-                    MessageBox.Show("Vui lòng nhập lại từ.");
+                    MessageBox.Show("Không tìm được từ đồng nghĩa của từ.");
                     IsLoading = Visibility.Hidden;
                     IsTranslatedGridVisible = Visibility.Hidden;
+                    logger.LogError("Error when looking up dictionary.");
                 }
 
 
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                logger.LogError("Error when looking up dictionary.");
             }
         }
     }

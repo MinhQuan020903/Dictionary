@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Dictionary.Model
 {
-    public class LogFile
+    public class SaveFile
     {
         public static void SaveTranslatedItemsToFile(string filePath, ObservableCollection<SavedWord> SavedWords)
         {
@@ -61,6 +61,31 @@ namespace Dictionary.Model
                 Console.WriteLine(ex.Message);
             }
             return null;
+        }
+        public static void SaveErrorToFile(string filePath, string error)
+        {
+            try
+            {
+                // Get the base directory where the application is running
+                string baseDirectory = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\.."));
+                // Check if the "Log" folder exists, if not, create it
+                string logFolderPath = Path.Combine(baseDirectory, "Log");
+                if (!Directory.Exists(logFolderPath))
+                {
+                    Directory.CreateDirectory(logFolderPath);
+                }
+
+                // Construct the full file path
+                string fullFilePath = Path.Combine(logFolderPath, filePath);
+
+                // Save error to a file
+                File.AppendAllText(fullFilePath, error);
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
         }
     }
 }
