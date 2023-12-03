@@ -2,7 +2,6 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -83,20 +82,18 @@ namespace Dictionary.Model.API
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e.Message);
+                    return new ApiResponse<DictionaryExample>
+                    {
+                        Data = null,
+                        IsSuccess = false,
+                        Error = new ErrorDetails
+                        {
+                            Code = 0,
+                            Message = e.Message
+                        }
+                    };
                 }
-
             }
-            return new ApiResponse<DictionaryExample>
-            {
-                Data = null,
-                IsSuccess = false,
-                Error = new ErrorDetails
-                {
-                    Code = 0,
-                    Message = "Unknown error"
-                }
-            };
         }
         private static string RemoveEncoding(string encodedJson)
         {
@@ -106,5 +103,6 @@ namespace Dictionary.Model.API
             sb.Replace("]\"", "]");
             return sb.ToString();
         }
-    }
+    };
+
 }

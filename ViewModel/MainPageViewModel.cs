@@ -3,28 +3,26 @@ using Dictionary.Model.API;
 
 using Dictionary.Model.JSON;
 using Dictionary.Model.Word;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Data.Common;
 using System.IO;
 using System.Linq;
-using System.Reflection.Metadata;
-using System.Text;
-using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
-using Unsplasharp;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Dictionary.ViewModel
 {
     public class MainPageViewModel : BaseViewModel
     {
+        private ILoggerFactory loggerFactory;
+        private ILogger<MainPageViewModel> logger;
+
         private ObservableCollection<SavedWord> _savedWords;
 
         public ObservableCollection<SavedWord> SavedWords
@@ -184,10 +182,10 @@ namespace Dictionary.ViewModel
             Environment.SetEnvironmentVariable("SPEECH_REGION", "southeastasia");*/
 
             //Load saved words from Log file
-            SavedWords = new ObservableCollection<SavedWord>();
+            SavedWords = SaveFile.LoadTranslatedItemsFromFile();
 
-            LoadTranslatedItemsFromFile();
             string saveWordJson = JsonConvert.SerializeObject(SavedWords);
+
 
 
             //Command when loading main windows
@@ -205,14 +203,77 @@ namespace Dictionary.ViewModel
             SavedWordButtonCommand = new RelayCommand<SavedWord>(SavedWordButtonCanExecute, SavedWordButtonExecute);
 
 
+            string baseDirectory = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\.."));
+            //Create logger object
+            loggerFactory = LoggerFactory.Create(builder =>
+            {
+                LoggerConfiguration loggerConfiguration = new LoggerConfiguration()
+                .WriteTo.File(baseDirectory + "\\Log\\Error\\Log.txt", rollingInterval: RollingInterval.Day);
+
+                builder.AddSerilog(loggerConfiguration.CreateLogger());
+            });
+            logger = loggerFactory.CreateLogger<MainPageViewModel>();
+
+
             LangList = new List<LanguageObject>();
             LangList.Add(new LanguageObject("Tiếng Việt", "vi"));
             LangList.Add(new LanguageObject("Tiếng Anh", "en"));
+        }
+        public MainPageViewModel(string randomWord)
+        {
+            /*//Set environment variable for Azure Speech API
+            Environment.SetEnvironmentVariable("SPEECH_KEY", App.Current.Resources["AzureTextToSpeechKey"].ToString());
+            Environment.SetEnvironmentVariable("SPEECH_REGION", "southeastasia");*/
+            Text = randomWord;
+
+            //Load saved words from Log file
+            SavedWords = new ObservableCollection<SavedWord>();
+
+            SavedWords = SaveFile.LoadTranslatedItemsFromFile();
+            string saveWordJson = JsonConvert.SerializeObject(SavedWords);
+
+
+            //Command when loading main windows
+            LoadedWindowCommand = new RelayCommand<object>((p) => { return true; }, (p) =>
+            {
+
+            });
+            //Command when text box lost focus
+            LostFocusCommand = new RelayCommand<object>((p) => { return true; }, (p) =>
+            {
+                Keyboard.ClearFocus();
+            });
+            ButtonAudioCommand = new RelayCommand<object>(ButtonCommandAudioCanExecute, ButtonCommandAudioExecute);
+            ButtonTranslatorCommand = new RelayCommand<object>(ButtonCommandTranslatorCanExecute, ButtonCommandTranslatorExecute);
+            SavedWordButtonCommand = new RelayCommand<SavedWord>(SavedWordButtonCanExecute, SavedWordButtonExecute);
+
+            //Create logger object
+            string baseDirectory = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\.."));
+            //Create logger object
+            loggerFactory = LoggerFactory.Create(builder =>
+            {
+                LoggerConfiguration loggerConfiguration = new LoggerConfiguration()
+                .WriteTo.File(baseDirectory + "\\Log\\Error\\Log.txt", rollingInterval: RollingInterval.Day)
+                ;
+
+                builder.AddSerilog(loggerConfiguration.CreateLogger());
+            });
+            logger = loggerFactory.CreateLogger<MainPageViewModel>();
+
+            LangList = new List<LanguageObject>();
+            LangList.Add(new LanguageObject("Tiếng Việt", "vi"));
+            LangList.Add(new LanguageObject("Tiếng Anh", "en"));
+            //Set language for random word (default is Vietnamese)
+            SourceLang = "en";
+            TranslateLang = "vi";
+            //Call for translation
+            ButtonCommandTranslatorExecute(null);
         }
 
 
         private void SavedWordButtonExecute(SavedWord selectedSavedWord)
         {
+
             // Set properties in the view model based on the selected SavedWord
             Text = selectedSavedWord.Text;
             TranslatedText = selectedSavedWord.TranslatedText;
@@ -270,46 +331,18 @@ namespace Dictionary.ViewModel
                 IsLoading = Visibility.Visible;
                 TranslatedWord = new Word();
                 //Translate text
-                try
-                {
-                    await TranslateInput(SourceLang, TranslateLang);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
+                await TranslateInput(SourceLang, TranslateLang);
 
                 //Get synonyms and parts of speech of word
-                try
-                {
-                    await Task.WhenAll(
+                await Task.WhenAll(
                         //Get synonyms and parts of speech of word
                         DictionaryLookupInput(SourceLang, TranslateLang),
                         //Get example image from text
                         GetImageOfTranslatedText()
                     );
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
-
-                //Get example of translation
-                try
-                {
-                    await GetAllSynonymExamples(SourceLang, TranslateLang);
-
-
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
-
 
                 if (IsSuccess)
                 {
-
                     //Binding data to ListView
                     WordListView = new WordListView();
                     WordListView.PopulateWordListView(TranslatedWord.GetExamplesOfSynonym());
@@ -343,65 +376,15 @@ namespace Dictionary.ViewModel
                         SavedWords.Add(translationItem);
 
                         // Save the list of translated items to a file
-                        SaveTranslatedItemsToFile("..\\Log\\SavedWord.json");
+                        SaveFile.SaveTranslatedItemsToFile("..\\Log\\SavedWord.json", SavedWords);
                     }
                 }
-
-
-
-            }
-        }
-
-        public void SaveTranslatedItemsToFile(string filePath)
-        {
-            try
-            {
-                // Get the base directory where the application is running
-
-                string baseDirectory = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\.."));
-                // Check if the "Log" folder exists, if not, create it
-                string logFolderPath = Path.Combine(baseDirectory, "Log");
-                if (!Directory.Exists(logFolderPath))
-                {
-                    Directory.CreateDirectory(logFolderPath);
-                }
-
-                // Construct the full file path
-                string fullFilePath = Path.Combine(logFolderPath, filePath);
-
-                // Serialize and save translated items to a file
-                string translatedItemsJson = JsonConvert.SerializeObject(SavedWords);
-                File.WriteAllText(fullFilePath, translatedItemsJson);
-
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-        }
-
-
-
-        public void LoadTranslatedItemsFromFile()
-        {
-            try
-            {
-                string baseDirectory = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\.."));
-                // Check if the "Log" folder exists, if not, create it
-                string logFolderPath = Path.Combine(baseDirectory, "Log\\SavedWord.json");
-
-                if (File.Exists(logFolderPath))
-                {
-                    string translatedItemsJson = File.ReadAllText(logFolderPath);
-                    SavedWords = new ObservableCollection<SavedWord>(JsonConvert.DeserializeObject<List<SavedWord>>(translatedItemsJson));
-
-                }
                 else
-                { }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
+                {
+                    MessageBox.Show("Lỗi khi dịch từ.");
+                    IsLoading = Visibility.Hidden;
+                    logger.LogError("Error when translating input.");
+                }
             }
         }
 
@@ -412,11 +395,19 @@ namespace Dictionary.ViewModel
             {
                 string unsplashApiKey = App.Current.Resources["UnsplashApiKey"].ToString();
                 //Connect to Unsplash API with API credential
-                Image = await TextToImageAPI.GetImageFromText(TranslatedText);
+                if (TranslateLang.Equals("vi"))
+                {
+                    Image = await TextToImageAPI.GetImageFromText(Text);
+                }
+                else
+                {
+                    Image = await TextToImageAPI.GetImageFromText(TranslatedText);
+                };
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+
+                logger.LogError("Error when getting image of translated text.");
             }
         }
         private async Task TranslateInput(string from, string to)
@@ -444,39 +435,26 @@ namespace Dictionary.ViewModel
                             // Check if the property exists and get its value
                             if (textToken != null)
                             {
-                                //Check if the translated text is the same as the original text
-                                //If it is, show error message (because the API cannot translate the text)
-                                if (string.Equals(textToken.ToString(), Text, StringComparison.OrdinalIgnoreCase))
-                                {
-                                    MessageBox.Show("Vui lòng nhập lại từ.");
-                                    IsLoading = Visibility.Hidden;
-                                    IsTranslatedGridVisible = Visibility.Hidden;
-                                }
-                                else
-                                {
-                                    // 'translatedText' now contains the value of the "text" property
-
-                                    TranslatedWord.SetTranslatedWord(textToken.ToString());
-                                    TranslatedText = textToken.ToString();
-
-                                }
-
+                                // 'translatedText' now contains the value of the "text" property
+                                TranslatedWord.SetTranslatedWord(textToken.ToString());
+                                TranslatedText = textToken.ToString();
                             }
                         }
 
                     }
                     else
                     {
-                        MessageBox.Show("Vui lòng nhập lại từ.");
+                        MessageBox.Show("Dịch từ thất bại.");
                         IsLoading = Visibility.Hidden;
                         IsTranslatedGridVisible = Visibility.Hidden;
+                        logger.LogError("Cannot translate input.");
                     }
                 }
 
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                logger.LogError("Error when translating input.");
             }
         }
 
@@ -494,18 +472,30 @@ namespace Dictionary.ViewModel
                     TranslatedWord.SetPartsOfSpeech(lookUp.Data.translations.Select(x => x.posTag).ToList());
                     //Get part of speech
                     PartOfSpeech = lookUp.Data.getALlPartOfSpeech();
+
+                    //Get example of translation
+                    try
+                    {
+                        await GetAllSynonymExamples(SourceLang, TranslateLang);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogError("Error when getting all synonym examples.");
+                    }
+
                 }
                 else
                 {
-                    MessageBox.Show("Vui lòng nhập lại từ.");
+                    MessageBox.Show("Không tìm được các thuộc tính của từ.");
                     IsLoading = Visibility.Hidden;
                     IsTranslatedGridVisible = Visibility.Hidden;
+                    logger.LogError("Error when looking up dictionary.");
                 }
 
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                logger.LogError("Error when looking up dictionary.");
             }
         }
 
@@ -534,16 +524,17 @@ namespace Dictionary.ViewModel
                 }
                 else
                 {
-                    MessageBox.Show("Vui lòng nhập lại từ.");
+                    MessageBox.Show("Không tìm được từ đồng nghĩa của từ.");
                     IsLoading = Visibility.Hidden;
                     IsTranslatedGridVisible = Visibility.Hidden;
+                    logger.LogError("Error when looking up dictionary.");
                 }
 
 
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                logger.LogError("Error when looking up dictionary.");
             }
         }
     }

@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections;
+﻿using Dictionary.Model.JSON;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Policy;
-using System.Text;
-using System.Threading.Tasks;
-using Dictionary.Model.JSON;
-using Microsoft.Extensions.Primitives;
 
 namespace Dictionary.Model.Word
 {
