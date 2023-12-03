@@ -1,4 +1,7 @@
-﻿using Newtonsoft.Json;
+﻿using Azure;
+using Dictionary.ViewModel;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -10,7 +13,7 @@ namespace Dictionary.Model.API
     {
         private const int TOTAL_WORDS = 30;
 
-        public static async Task<List<string>> GetRandomWordsFromStartCharacter(string character)
+        public static async Task<List<string>> GetRandomWordsFromStartCharacter(string character, ILogger<BaseViewModel>? logger = null)
         {
             List<string> randomWords = new List<string>();
 
@@ -32,13 +35,13 @@ namespace Dictionary.Model.API
                     else
                     {
                         // Handle unsuccessful response
-                        Console.WriteLine($"Failed to retrieve random words. Status code: {response.StatusCode}");
+                        logger.LogError($"Error when getting random words from start character. Code: {response.StatusCode}");
                     }
                 }
                 catch (Exception ex)
                 {
                     // Handle exceptions
-                    Console.WriteLine($"An error occurred: {ex.Message}");
+                    logger.LogError($"Error when getting random words from start character.");
                 }
             }
 

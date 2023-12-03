@@ -66,7 +66,8 @@ namespace Dictionary.Model
                 // Construct the request body
                 var requestBody = new
                 {
-                    aspect_ratio = "landscape",
+                    w
+                        aspect_ratio = "landscape",
                     guidance_scale = 7.5,
                     negprompt = "a blank canvas",
                     prompt = prompt,

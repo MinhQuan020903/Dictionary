@@ -1,6 +1,8 @@
 ﻿using Dictionary.Model;
 using Dictionary.Model.API;
 using Dictionary.View;
+using Microsoft.Extensions.Logging;
+using Serilog;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -12,6 +14,10 @@ namespace Dictionary.ViewModel
 {
     public class RandomWordPageViewModel : BaseViewModel
     {
+
+        private ILoggerFactory loggerFactory;
+        private ILogger<RandomWordPageViewModel> logger;
+
         private ObservableCollection<string> _characters;
 
         public ObservableCollection<string> Characters
@@ -67,6 +73,16 @@ namespace Dictionary.ViewModel
             SearchCharacterCommand = new RelayCommand<object>(SearchCharacterCommandCanExecute, SearchCharacterCommandExecute);
             Characters = new ObservableCollection<string>(Enumerable.Range('A', 26).Select(c => ((char)c).ToString()));
 
+            //Create logger object
+            loggerFactory = LoggerFactory.Create(builder =>
+            {
+                LoggerConfiguration loggerConfiguration = new LoggerConfiguration()
+                .WriteTo.File("..\\Log\\Error\\Log.txt");
+
+                builder.AddSerilog(loggerConfiguration.CreateLogger());
+            });
+            logger = loggerFactory.CreateLogger<RandomWordPageViewModel>();
+
             IsRandomWordsVisible = Visibility.Hidden;
             IsLoading = Visibility.Hidden;
 
@@ -74,7 +90,7 @@ namespace Dictionary.ViewModel
 
         private void SelectCharacterCommandExecute(object obj)
         {
-            GetRandomWordsFromStartCharacter(obj.ToString());
+            GetRandomWordsFromStartCharacter(obj.ToString(), logger);
             IsRandomWordsVisible = Visibility.Hidden;
             IsLoading = Visibility.Visible;
         }
@@ -86,9 +102,9 @@ namespace Dictionary.ViewModel
             return true;
         }
 
-        private async void GetRandomWordsFromStartCharacter(string character)
+        private async void GetRandomWordsFromStartCharacter(string character, ILogger<RandomWordPageViewModel> logger)
         {
-            List<string> randomWordsList = await RandomWordAPI.GetRandomWordsFromStartCharacter(character);
+            List<string> randomWordsList = await RandomWordAPI.GetRandomWordsFromStartCharacter(character, logger);
             if (randomWordsList.Count > 0)
             {
                 IsRandomWordsVisible = Visibility.Visible;
