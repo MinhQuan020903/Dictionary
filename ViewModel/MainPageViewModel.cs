@@ -213,6 +213,7 @@ namespace Dictionary.ViewModel
             }
         }
         public ICommand LostFocusCommand { get; set; }
+        public ICommand ButtonSpeechToTextCommand { get; set; }
         public ICommand ButtonAudioCommand { get; set; }
         public ICommand ButtonTranslatorCommand { get; set; }
         public ICommand LoadedWindowCommand { get; set; }
@@ -241,6 +242,7 @@ namespace Dictionary.ViewModel
             {
                 Keyboard.ClearFocus();
             });
+            ButtonSpeechToTextCommand = new RelayCommand<object>(ButtonCommandSpeechToTextCanExecute, ButtonCommandSpeechToTextExecute);
             ButtonAudioCommand = new RelayCommand<object>(ButtonCommandAudioCanExecute, ButtonCommandAudioExecute);
             ButtonTranslatorCommand = new RelayCommand<object>(ButtonCommandTranslatorCanExecute, ButtonCommandTranslatorExecute);
             SavedWordButtonCommand = new RelayCommand<SavedWord>(SavedWordButtonCanExecute, SavedWordButtonExecute);
@@ -278,6 +280,7 @@ namespace Dictionary.ViewModel
             {
                 Keyboard.ClearFocus();
             });
+            ButtonSpeechToTextCommand = new RelayCommand<object>(ButtonCommandSpeechToTextCanExecute, ButtonCommandSpeechToTextExecute);
             ButtonAudioCommand = new RelayCommand<object>(ButtonCommandAudioCanExecute, ButtonCommandAudioExecute);
             ButtonTranslatorCommand = new RelayCommand<object>(ButtonCommandTranslatorCanExecute, ButtonCommandTranslatorExecute);
             SavedWordButtonCommand = new RelayCommand<SavedWord>(SavedWordButtonCanExecute, SavedWordButtonExecute);
@@ -328,6 +331,16 @@ namespace Dictionary.ViewModel
         private async void ButtonCommandAudioExecute(object obj)
         {
             await TextToSpeechAPI.TextToSpeech(TranslatedText, SourceLang, TranslateLang, logger);
+        }
+
+        private bool ButtonCommandSpeechToTextCanExecute(object obj)
+        {
+            return true;
+        }
+
+        private async void ButtonCommandSpeechToTextExecute(object obj)
+        {
+            Text = await SpeechToTextAPI.SpeechToText(SourceLang, logger);
         }
 
         private bool ButtonCommandTranslatorCanExecute(object obj)

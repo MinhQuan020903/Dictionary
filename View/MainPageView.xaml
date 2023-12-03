@@ -71,13 +71,14 @@
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*" />
                                         <ColumnDefinition Width="auto" />
+                                        <ColumnDefinition Width="auto" />
                                     </Grid.ColumnDefinitions>
                                     <TextBox
                                         x:Name="tbSearch"
                                         Grid.Column="0"
                                         Width="600px"
                                         Height="50px"
-                                        Margin="0,0,50,0"
+                                        Margin="0,0,20,0"
                                         BorderThickness="1px"
                                         Text="{Binding DataContext.Text, RelativeSource={RelativeSource FindAncestor, AncestorType=Page}}">
                                         <i:Interaction.Triggers>
@@ -145,6 +146,20 @@
                                             </Style>
                                         </TextBox.Style>
                                     </TextBox>
+                                    <Button
+                                        x:Name="btnSpeechToText"
+                                        Grid.Column="1"
+                                        Width="30px"
+                                        Height="30px"
+                                        Margin="0,0,20,0"
+                                        Background="{StaticResource DarkPurple}"
+                                        Command="{Binding DataContext.ButtonSpeechToTextCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=Page}}"
+                                        CommandParameter="{Binding Text, ElementName=tbSearch}"
+                                        Content="{materialDesign:PackIcon VolumeHigh}"
+                                        Foreground="White"
+                                        IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
+                                        Style="{StaticResource MaterialDesignFloatingActionMiniLightButton}"
+                                        ToolTip="Icon" />
 
                                     <Button
                                         Grid.Column="2"

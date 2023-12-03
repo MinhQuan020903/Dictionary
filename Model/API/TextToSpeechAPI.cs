@@ -46,7 +46,6 @@ namespace Dictionary.Model
             switch (speechSynthesisResult.Reason)
             {
                 case ResultReason.SynthesizingAudioCompleted:
-                    Console.WriteLine($"Speech synthesized for text: [{text}]");
                     break;
                 case ResultReason.Canceled:
                     var cancellation = SpeechSynthesisCancellationDetails.FromResult(speechSynthesisResult);
@@ -54,9 +53,9 @@ namespace Dictionary.Model
 
                     if (cancellation.Reason == CancellationReason.Error)
                     {
-                        Console.WriteLine($"CANCELED: ErrorCode={cancellation.ErrorCode}");
-                        Console.WriteLine($"CANCELED: ErrorDetails=[{cancellation.ErrorDetails}]");
-                        Console.WriteLine($"CANCELED: Did you set the speech resource key and region values?");
+                        logger.LogError($"Speech synthesis CANCELED: ErrorCode={cancellation.ErrorCode}");
+                        logger.LogError($"Speech synthesis CANCELED: ErrorDetails=[{cancellation.ErrorDetails}]");
+                        logger.LogError($"Speech synthesis CANCELED: Did you set the speech resource key and region values?");
                     }
                     break;
                 default:

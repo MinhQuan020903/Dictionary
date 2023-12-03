@@ -1,5 +1,7 @@
-﻿using Microsoft.CognitiveServices.Speech;
+﻿using Dictionary.ViewModel;
+using Microsoft.CognitiveServices.Speech;
 using Microsoft.CognitiveServices.Speech.Audio;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,31 +16,35 @@ namespace Dictionary.Model.API
         static string speechKey = Environment.GetEnvironmentVariable("SPEECH_KEY");
         static string speechRegion = Environment.GetEnvironmentVariable("SPEECH_REGION");
 
-        static void OutputSpeechRecognitionResult(SpeechRecognitionResult speechRecognitionResult)
+        static string OutputSpeechRecognitionResult(SpeechRecognitionResult speechRecognitionResult, ILogger<BaseViewModel> logger)
         {
             switch (speechRecognitionResult.Reason)
             {
                 case ResultReason.RecognizedSpeech:
-                    Console.WriteLine($"RECOGNIZED: Text={speechRecognitionResult.Text}");
-                    break;
+                    return speechRecognitionResult.Text.Remove(speechRecognitionResult.Text.Length - 1);
                 case ResultReason.NoMatch:
-                    Console.WriteLine($"NOMATCH: Speech could not be recognized.");
-                    break;
-                case ResultReason.Canceled:
-                    var cancellation = CancellationDetails.FromResult(speechRecognitionResult);
-                    Console.WriteLine($"CANCELED: Reason={cancellation.Reason}");
-
-                    if (cancellation.Reason == CancellationReason.Error)
                     {
-                        Console.WriteLine($"CANCELED: ErrorCode={cancellation.ErrorCode}");
-                        Console.WriteLine($"CANCELED: ErrorDetails={cancellation.ErrorDetails}");
-                        Console.WriteLine($"CANCELED: Did you set the speech resource key and region values?");
+                        logger.LogError($"SPEECH TO TEXT ERRROR. NOMATCH: Speech could not be recognized.");
+                        break;
                     }
-                    break;
+                case ResultReason.Canceled:
+                    {
+                        var cancellation = CancellationDetails.FromResult(speechRecognitionResult);
+                        logger.LogError($"SPEECH TO TEXT ERRROR. CANCELED: Reason={cancellation.Reason}");
+
+                        if (cancellation.Reason == CancellationReason.Error)
+                        {
+                            logger.LogError($"SPEECH TO TEXT ERRROR. CANCELED: ErrorCode={cancellation.ErrorCode}");
+                            logger.LogError($"SPEECH TO TEXT ERRROR. CANCELED: ErrorDetails={cancellation.ErrorDetails}");
+                        }
+                        break;
+                    }
+
             }
+            return "";
         }
 
-        public async static Task SpeechToText(string SourceLang)
+        public async static Task<string> SpeechToText(string SourceLang, ILogger<BaseViewModel> logger)
         {
             var speechConfig = SpeechConfig.FromSubscription(speechKey, speechRegion);
             if (SourceLang.Equals("vi"))
@@ -55,7 +61,7 @@ namespace Dictionary.Model.API
             using var speechRecognizer = new SpeechRecognizer(speechConfig, audioConfig);
 
             var speechRecognitionResult = await speechRecognizer.RecognizeOnceAsync();
-            OutputSpeechRecognitionResult(speechRecognitionResult);
+            return OutputSpeechRecognitionResult(speechRecognitionResult, logger);
         }
     }
 }
