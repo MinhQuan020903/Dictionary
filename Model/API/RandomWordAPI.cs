@@ -31,10 +31,12 @@ namespace Dictionary.Model.API
                         // Read and parse the response content
                         string jsonResponse = await response.Content.ReadAsStringAsync();
                         randomWords = JsonConvert.DeserializeObject<List<string>>(jsonResponse);
+
                     }
                     else
                     {
                         // Handle unsuccessful response
+
                         logger.LogError($"Error when getting random words from start character. Code: {response.StatusCode}");
                     }
                 }

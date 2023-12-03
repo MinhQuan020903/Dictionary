@@ -208,8 +208,7 @@
 
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="*" />
-                                        <RowDefinition Height="2*" />
-                                        <RowDefinition Height="3*" />
+                                        <RowDefinition Height="auto" />
                                     </Grid.RowDefinitions>
 
 
@@ -298,82 +297,89 @@
 
                                     </Border>
 
-                                    <Label
-                                        Grid.Row="1"
-                                        Margin="30,10,20,0"
-                                        Content="Từ đồng nghĩa"
-                                        FontSize="20"
-                                        FontWeight="DemiBold" />
-                                    <Border
-                                        Grid.Row="2"
-                                        Width="800px"
-                                        Margin="30,10,30,30"
-                                        Padding="8"
-                                        HorizontalAlignment="Stretch"
-                                        VerticalAlignment="Stretch"
-                                        Background="Transparent"
-                                        BorderBrush="Black"
-                                        BorderThickness="1"
-                                        CornerRadius="15">
+                                    <Grid Grid.Row="1" Visibility="{Binding IsSynonymGridVisible}">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="2*" />
+                                            <RowDefinition Height="3*" />
+                                        </Grid.RowDefinitions>
+                                        <Label
+                                            Grid.Row="0"
+                                            Margin="30,10,20,0"
+                                            Content="Từ đồng nghĩa"
+                                            FontSize="20"
+                                            FontWeight="DemiBold" />
                                         <Border
+                                            Grid.Row="1"
                                             Width="800px"
-                                            MaxHeight="300"
-                                            Padding="0"
+                                            Margin="30,10,30,30"
+                                            Padding="8"
+                                            HorizontalAlignment="Stretch"
+                                            VerticalAlignment="Stretch"
                                             Background="Transparent"
-                                            BorderThickness="0"
+                                            BorderBrush="Black"
+                                            BorderThickness="1"
                                             CornerRadius="15">
-                                            <ListView
-                                                x:Name="lvWordSynonyms"
-                                                HorizontalAlignment="Stretch"
-                                                VerticalAlignment="Stretch"
-                                                ItemsSource="{Binding WordListView.ListViewItems}">
-                                                <ListView.ItemTemplate>
-                                                    <DataTemplate>
-                                                        <Border
-                                                            Width="400px"
-                                                            Height="auto"
-                                                            Margin="0,0,0,10"
-                                                            Padding="10"
-                                                            Background="Transparent"
-                                                            BorderBrush="Black"
-                                                            BorderThickness="0,0,0,1">
-                                                            <Grid>
-                                                                <Grid.RowDefinitions>
-                                                                    <RowDefinition Height="*" />
-                                                                    <RowDefinition Height="*" />
-                                                                </Grid.RowDefinitions>
+                                            <Border
+                                                Width="800px"
+                                                MaxHeight="300"
+                                                Padding="0"
+                                                Background="Transparent"
+                                                BorderThickness="0"
+                                                CornerRadius="15">
+                                                <ListView
+                                                    x:Name="lvWordSynonyms"
+                                                    HorizontalAlignment="Stretch"
+                                                    VerticalAlignment="Stretch"
+                                                    ItemsSource="{Binding WordListView.ListViewItems}">
+                                                    <ListView.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Border
+                                                                Width="400px"
+                                                                Height="auto"
+                                                                Margin="0,0,0,10"
+                                                                Padding="10"
+                                                                Background="Transparent"
+                                                                BorderBrush="Black"
+                                                                BorderThickness="0,0,0,1">
+                                                                <Grid>
+                                                                    <Grid.RowDefinitions>
+                                                                        <RowDefinition Height="*" />
+                                                                        <RowDefinition Height="*" />
+                                                                    </Grid.RowDefinitions>
 
-                                                                <Grid Grid.Row="0">
-                                                                    <Grid.ColumnDefinitions>
-                                                                        <ColumnDefinition Width="*" />
-                                                                        <ColumnDefinition Width="auto" />
-                                                                    </Grid.ColumnDefinitions>
-                                                                    <TextBlock
-                                                                        Grid.Column="0"
-                                                                        FontSize="16"
-                                                                        FontWeight="Bold"
-                                                                        Text="{Binding Synonym}" />
-                                                                    <TextBlock Grid.Column="1">
-                                                                        <Run FontStyle="Italic" Text="[" />
-                                                                        <Run FontStyle="Italic" Text="{Binding PartOfSpeech}" />
-                                                                        <Run FontStyle="Italic" Text="]" />
+                                                                    <Grid Grid.Row="0">
+                                                                        <Grid.ColumnDefinitions>
+                                                                            <ColumnDefinition Width="*" />
+                                                                            <ColumnDefinition Width="auto" />
+                                                                        </Grid.ColumnDefinitions>
+                                                                        <TextBlock
+                                                                            Grid.Column="0"
+                                                                            FontSize="16"
+                                                                            FontWeight="Bold"
+                                                                            Text="{Binding Synonym}" />
+                                                                        <TextBlock Grid.Column="1">
+                                                                            <Run FontStyle="Italic" Text="[" />
+                                                                            <Run FontStyle="Italic" Text="{Binding PartOfSpeech}" />
+                                                                            <Run FontStyle="Italic" Text="]" />
+                                                                        </TextBlock>
+
+                                                                    </Grid>
+
+                                                                    <TextBlock Grid.Row="1" TextWrapping="WrapWithOverflow">
+                                                                        <Run Text="Ex: " />
+                                                                        <Run Text="{Binding Example}" />
                                                                     </TextBlock>
 
                                                                 </Grid>
+                                                            </Border>
 
-                                                                <TextBlock Grid.Row="1" TextWrapping="WrapWithOverflow">
-                                                                    <Run Text="Ex: " />
-                                                                    <Run Text="{Binding Example}" />
-                                                                </TextBlock>
-
-                                                            </Grid>
-                                                        </Border>
-
-                                                    </DataTemplate>
-                                                </ListView.ItemTemplate>
-                                            </ListView>
+                                                        </DataTemplate>
+                                                    </ListView.ItemTemplate>
+                                                </ListView>
+                                            </Border>
                                         </Border>
-                                    </Border>
+                                    </Grid>
+
 
                                 </Grid>
                                 <Grid.Style>

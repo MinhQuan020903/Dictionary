@@ -1,4 +1,5 @@
-﻿using Dictionary.Model;
+﻿using Azure.Core.Diagnostics;
+using Dictionary.Model;
 using Dictionary.Model.API;
 
 using Dictionary.Model.JSON;
@@ -157,6 +158,7 @@ namespace Dictionary.ViewModel
 
         //Data binding for visibility of translated grid
         private Visibility _isTranslatedGridVisible = Visibility.Hidden;
+        private Visibility _isSynonymGridVisible = Visibility.Hidden;
         private Visibility _isLoading = Visibility.Hidden;
         public Visibility IsLoading
         {
@@ -178,14 +180,36 @@ namespace Dictionary.ViewModel
 
             }
         }
-        private Boolean _isSuccess = false;
-        public Boolean IsSuccess
+        public Visibility IsSynonymGridVisible
         {
-            get => _isSuccess;
+            get => _isSynonymGridVisible;
             set
             {
-                _isSuccess = value;
-                OnPropertyChanged(nameof(IsSuccess));
+                _isSynonymGridVisible = value;
+                OnPropertyChanged(nameof(IsSynonymGridVisible));
+
+            }
+        }
+        private Boolean _isTranslateSuccess = false;
+
+        public Boolean IsTranslateSuccess
+        {
+            get => _isTranslateSuccess;
+            set
+            {
+                _isTranslateSuccess = value;
+                OnPropertyChanged(nameof(IsTranslateSuccess));
+            }
+        }
+
+        private Boolean _isGetImageSuccess = false;
+        public Boolean IsGetImageSuccess
+        {
+            get => _isGetImageSuccess;
+            set
+            {
+                _isGetImageSuccess = value;
+                OnPropertyChanged(nameof(IsGetImageSuccess));
             }
         }
         public ICommand LostFocusCommand { get; set; }
@@ -222,16 +246,8 @@ namespace Dictionary.ViewModel
             SavedWordButtonCommand = new RelayCommand<SavedWord>(SavedWordButtonCanExecute, SavedWordButtonExecute);
 
 
-            string baseDirectory = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\.."));
             //Create logger object
-            loggerFactory = LoggerFactory.Create(builder =>
-            {
-                LoggerConfiguration loggerConfiguration = new LoggerConfiguration()
-                .WriteTo.File(baseDirectory + "\\Log\\Error\\Log.txt", rollingInterval: RollingInterval.Day);
-
-                builder.AddSerilog(loggerConfiguration.CreateLogger());
-            });
-            logger = loggerFactory.CreateLogger<MainPageViewModel>();
+            logger = LoggerProvider.CreateLogger<MainPageViewModel>();
 
 
             LangList = new List<LanguageObject>();
@@ -267,17 +283,7 @@ namespace Dictionary.ViewModel
             SavedWordButtonCommand = new RelayCommand<SavedWord>(SavedWordButtonCanExecute, SavedWordButtonExecute);
 
             //Create logger object
-            string baseDirectory = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\.."));
-            //Create logger object
-            loggerFactory = LoggerFactory.Create(builder =>
-            {
-                LoggerConfiguration loggerConfiguration = new LoggerConfiguration()
-                .WriteTo.File(baseDirectory + "\\Log\\Error\\Log.txt", rollingInterval: RollingInterval.Day)
-                ;
-
-                builder.AddSerilog(loggerConfiguration.CreateLogger());
-            });
-            logger = loggerFactory.CreateLogger<MainPageViewModel>();
+            logger = LoggerProvider.CreateLogger<MainPageViewModel>();
 
             LangList = new List<LanguageObject>();
             LangList.Add(new LanguageObject("Tiếng Việt", "vi"));
@@ -321,8 +327,7 @@ namespace Dictionary.ViewModel
 
         private async void ButtonCommandAudioExecute(object obj)
         {
-            Console.Write(Text);
-            await TextToSpeechAPI.TextToSpeech(TranslatedText, SourceLang, TranslateLang);
+            await TextToSpeechAPI.TextToSpeech(TranslatedText, SourceLang, TranslateLang, logger);
         }
 
         private bool ButtonCommandTranslatorCanExecute(object obj)
@@ -360,7 +365,7 @@ namespace Dictionary.ViewModel
                         GetImageOfTranslatedText()
                     );
 
-                if (IsSuccess)
+                if (IsTranslateSuccess && IsGetImageSuccess)
                 {
                     //Binding data to ListView
                     WordListView = new WordListView();
@@ -402,7 +407,6 @@ namespace Dictionary.ViewModel
                 {
                     MessageBox.Show("Lỗi khi dịch từ.");
                     IsLoading = Visibility.Hidden;
-                    logger.LogError("Error when translating input.");
                 }
             }
         }
@@ -410,70 +414,61 @@ namespace Dictionary.ViewModel
         private async Task GetImageOfTranslatedText()
         {
             //Get example image from text
-            try
+            string unsplashApiKey = App.Current.Resources["UnsplashApiKey"].ToString();
+            //Connect to Unsplash API with API credential
+            if (TranslateLang.Equals("vi"))
             {
-                string unsplashApiKey = App.Current.Resources["UnsplashApiKey"].ToString();
-                //Connect to Unsplash API with API credential
-                if (TranslateLang.Equals("vi"))
-                {
-                    Image = await TextToImageAPI.GetImageFromText(Text);
-                }
-                else
-                {
-                    Image = await TextToImageAPI.GetImageFromText(TranslatedText);
-                };
+                Image = await TextToImageAPI.GetImageFromText(Text, logger);
             }
-            catch (Exception ex)
+            else
             {
-
-                logger.LogError("Error when getting image of translated text.");
+                Image = await TextToImageAPI.GetImageFromText(TranslatedText, logger);
+            };
+            if (Image != null)
+            {
+                IsGetImageSuccess = true;
+            }
+            else
+            {
+                IsGetImageSuccess = false;
             }
         }
         private async Task TranslateInput(string from, string to)
         {
             //Translate text
-            try
-            {
-                ApiResponse<string> translated = await TranslateAPI.Translate(Text, from, to);
+            ApiResponse<string> translated = await TranslateAPI.Translate(Text, from, to, logger);
 
-                if (translated.IsSuccess)
+            if (translated.IsSuccess)
+            {
+                // Parse the JSON array
+                JArray jsonArray = JArray.Parse(translated.Data);
+                // Check if the array contains any items
+                if (jsonArray.Count > 0)
                 {
-                    // Parse the JSON array
-                    JArray jsonArray = JArray.Parse(translated.Data);
-                    // Check if the array contains any items
-                    if (jsonArray.Count > 0)
-                    {
-                        // Access the first item in the array
-                        JObject firstObject = jsonArray[0] as JObject;
+                    // Access the first item in the array
+                    JObject firstObject = jsonArray[0] as JObject;
 
-                        if (firstObject != null)
+                    if (firstObject != null)
+                    {
+                        // Use SelectToken to get the "text" property within the first object
+                        JToken textToken = firstObject.SelectToken("translations[0].text");
+
+                        // Check if the property exists and get its value
+                        if (textToken != null)
                         {
-                            // Use SelectToken to get the "text" property within the first object
-                            JToken textToken = firstObject.SelectToken("translations[0].text");
-
-                            // Check if the property exists and get its value
-                            if (textToken != null)
-                            {
-                                // 'translatedText' now contains the value of the "text" property
-                                TranslatedWord.SetTranslatedWord(textToken.ToString());
-                                TranslatedText = textToken.ToString();
-                            }
+                            // 'translatedText' now contains the value of the "text" property
+                            TranslatedWord.SetTranslatedWord(textToken.ToString());
+                            TranslatedText = textToken.ToString();
                         }
+                    }
 
-                    }
-                    else
-                    {
-                        MessageBox.Show("Dịch từ thất bại.");
-                        IsLoading = Visibility.Hidden;
-                        IsTranslatedGridVisible = Visibility.Hidden;
-                        logger.LogError("Cannot translate input.");
-                    }
                 }
-
-            }
-            catch (Exception ex)
-            {
-                logger.LogError("Error when translating input.");
+                else
+                {
+                    MessageBox.Show("Dịch từ thất bại.");
+                    IsLoading = Visibility.Hidden;
+                    IsTranslatedGridVisible = Visibility.Hidden;
+                }
             }
         }
 
@@ -481,10 +476,10 @@ namespace Dictionary.ViewModel
         private async Task DictionaryLookupInput(string from, string to)
         {
             //Translate text
-            try
+            ApiResponse<DictionaryLookup> lookUp = await DictionaryLookupAPI.LookUp(Text, from, to, logger);
+            if (lookUp.IsSuccess)
             {
-                ApiResponse<DictionaryLookup> lookUp = await DictionaryLookupAPI.LookUp(Text, from, to);
-                if (lookUp.IsSuccess)
+                if (lookUp.Data.translations.Count > 0)
                 {
                     //Add data to TranslatedWord
                     TranslatedWord.SetSynonyms(lookUp.Data.translations);
@@ -493,28 +488,21 @@ namespace Dictionary.ViewModel
                     PartOfSpeech = lookUp.Data.getALlPartOfSpeech();
 
                     //Get example of translation
-                    try
-                    {
-                        await GetAllSynonymExamples(SourceLang, TranslateLang);
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.LogError("Error when getting all synonym examples.");
-                    }
-
+                    await GetAllSynonymExamples(SourceLang, TranslateLang);
+                    IsSynonymGridVisible = Visibility.Visible;
                 }
                 else
                 {
-                    MessageBox.Show("Không tìm được các thuộc tính của từ.");
-                    IsLoading = Visibility.Hidden;
-                    IsTranslatedGridVisible = Visibility.Hidden;
-                    logger.LogError("Error when looking up dictionary.");
+                    IsTranslateSuccess = true;
+                    IsSynonymGridVisible = Visibility.Hidden;
                 }
 
             }
-            catch (Exception ex)
+            else
             {
-                logger.LogError("Error when looking up dictionary.");
+                MessageBox.Show("Không tìm được các thuộc tính của từ.");
+                IsLoading = Visibility.Hidden;
+                IsTranslatedGridVisible = Visibility.Hidden;
             }
         }
 
@@ -529,31 +517,21 @@ namespace Dictionary.ViewModel
         private async Task DictionaryExampleInput(string translation, string from, string to)
         {
             //Get example of translation
-            try
+            ApiResponse<DictionaryExample> lookUp = await DictionaryExampleAPI.GetExample(Text, translation, from, to);
+            if (lookUp.IsSuccess)
             {
-                ApiResponse<DictionaryExample> lookUp = await DictionaryExampleAPI.GetExample(Text, translation, from, to);
-                if (lookUp.IsSuccess)
-                {
-                    TranslatedWord.SetExamplesOfSynonym(lookUp.Data.examples);
+                TranslatedWord.SetExamplesOfSynonym(lookUp.Data.examples);
 
-                    //After getting all examples
-                    //(Complete translation)
-                    //, set IsSuccess to true
-                    IsSuccess = true;
-                }
-                else
-                {
-                    MessageBox.Show("Không tìm được từ đồng nghĩa của từ.");
-                    IsLoading = Visibility.Hidden;
-                    IsTranslatedGridVisible = Visibility.Hidden;
-                    logger.LogError("Error when looking up dictionary.");
-                }
-
-
+                //After getting all examples
+                //(Complete translation)
+                //, set IsSuccess to true
+                IsTranslateSuccess = true;
             }
-            catch (Exception ex)
+            else
             {
-                logger.LogError("Error when looking up dictionary.");
+                MessageBox.Show("Không tìm được từ đồng nghĩa của từ.");
+                IsLoading = Visibility.Hidden;
+                IsTranslatedGridVisible = Visibility.Hidden;
             }
         }
     }

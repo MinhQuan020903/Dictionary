@@ -1,4 +1,6 @@
-﻿using Microsoft.CognitiveServices.Speech;
+﻿using Dictionary.ViewModel;
+using Microsoft.CognitiveServices.Speech;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 
@@ -39,7 +41,7 @@ namespace Dictionary.Model
             }
         }
 
-        static void OutputSpeechSynthesisResult(SpeechSynthesisResult speechSynthesisResult, string text)
+        static void OutputSpeechSynthesisResult(SpeechSynthesisResult speechSynthesisResult, string text, ILogger<BaseViewModel> logger)
         {
             switch (speechSynthesisResult.Reason)
             {
@@ -48,7 +50,7 @@ namespace Dictionary.Model
                     break;
                 case ResultReason.Canceled:
                     var cancellation = SpeechSynthesisCancellationDetails.FromResult(speechSynthesisResult);
-                    Console.WriteLine($"CANCELED: Reason={cancellation.Reason}");
+                    logger.LogError($"Speech synthesis canceled. Reason: {cancellation.Reason}");
 
                     if (cancellation.Reason == CancellationReason.Error)
                     {
@@ -62,14 +64,14 @@ namespace Dictionary.Model
             }
         }
 
-        public static async Task TextToSpeech(string text, string from, string to)
+        public static async Task TextToSpeech(string text, string from, string to, ILogger<BaseViewModel>? logger = null)
         {
             // Initialize the speech synthesizer if not already initialized
             await InitializeAsync(from, to);
 
             // Use the preloaded speechSynthesizer instance
             var speechSynthesisResult = await speechSynthesizer.SpeakTextAsync(text);
-            OutputSpeechSynthesisResult(speechSynthesisResult, text);
+            OutputSpeechSynthesisResult(speechSynthesisResult, text, logger);
         }
     }
 }
