@@ -8,4 +8,5 @@
     <viewModel:TranslateParagraphPageViewModel x:Key="TranslateParagraphPageVM" />
     <viewModel:RandomWordPageViewModel x:Key="RandomWordPageVM" />
     <userControlViewModel:SidelBarViewModel x:Key="SideBarUCVM" />
+    <userControlViewModel:ControlBarViewModel x:Key="ControlBarUCVM" />
 </ResourceDictionary>
