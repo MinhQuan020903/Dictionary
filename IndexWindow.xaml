@@ -8,7 +8,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:uc="clr-namespace:Dictionary.View.UserControlView"
     Name="indexWindow"
-    Title="Từ điển"
+    Title="Từ điển Anh - Việt"
     Width="{StaticResource ScreenWidth}"
     Height="{StaticResource ScreenHeight}"
     AllowsTransparency="true"

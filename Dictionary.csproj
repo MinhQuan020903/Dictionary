@@ -13,10 +13,14 @@
 
   <ItemGroup>
     <None Remove="Resource\Image\audio.gif" />
+    <None Remove="Resource\Image\dictionary.png" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="Resource\Image\audio.gif">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resource\Image\dictionary.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

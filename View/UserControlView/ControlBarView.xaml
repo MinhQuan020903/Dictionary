@@ -28,12 +28,11 @@
 
         <Grid VerticalAlignment="Center">
 
-            <materialDesign:ColorZone VerticalAlignment="Center">
+            <materialDesign:ColorZone VerticalAlignment="Center" Background="Transparent">
 
-                <DockPanel>
+                <DockPanel Background="Transparent">
                     <StackPanel
                         Width="auto"
-                        Background="Transparent"
                         DockPanel.Dock="Right"
                         Orientation="Horizontal">
                         <StackPanel.Resources>
@@ -90,12 +89,17 @@
                             </Button.BorderBrush>
                         </Button>
                     </StackPanel>
-                    <StackPanel Orientation="Horizontal">
+                    <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
+                        <Image
+                            Width="30"
+                            Height="30"
+                            Margin="0,0,10,0"
+                            Source="../../Resource/Image/dictionary.png" />
                         <TextBlock Margin="16,0,0,0" VerticalAlignment="Center">
                             <TextBlock.Style>
                                 <Style TargetType="{x:Type TextBlock}">
                                     <Setter Property="Text" Value="{Binding Tag, ElementName=ucControlBar}" />
-                                    <Setter Property="FontSize" Value="18px" />
+                                    <Setter Property="FontSize" Value="14px" />
                                     <Setter Property="FontWeight" Value="Bold" />
                                     <Setter Property="Foreground" Value="#673ab7" />
                                 </Style>
