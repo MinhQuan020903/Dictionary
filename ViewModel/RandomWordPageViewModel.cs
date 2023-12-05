@@ -3,6 +3,7 @@ using Dictionary.Model.API;
 using Dictionary.View;
 using Microsoft.Extensions.Logging;
 using Serilog;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -120,8 +121,16 @@ namespace Dictionary.ViewModel
         }
         public void NavigateCommand(object p)
         {
-            NavigationServiceModel.NavigationService.Navigate(p);
+            if (Application.Current.MainWindow is IndexWindow mainWindow)
+            {
+                if (mainWindow.IndexFrame != null)
+                {
+                    mainWindow.IndexFrame.Navigate(p);
+                }
+            }
         }
+
+
 
         private void SearchCharacterCommandExecute(object obj)
         {

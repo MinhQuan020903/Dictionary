@@ -12,6 +12,6 @@
     <sys:String x:Key="StableDiffusionImageApiKey">
         eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6ImMxZDUyZWJkYTNlOWU4ZDMxZDk0YzYzYzYzYTI3NmNjIiwiY3JlYXRlZF9hdCI6IjIwMjMtMTEtMzBUMjA6NDI6MzIuNjMwMzA1In0.PryeMeZD_UqfwgYqzteF2Bn3US24b9KpBumFYZH2oX8
     </sys:String>
-    <sys:Double x:Key="ScreenHeight">800</sys:Double>
+    <sys:Double x:Key="ScreenHeight">768</sys:Double>
     <sys:Double x:Key="ScreenWidth">1500</sys:Double>
 </ResourceDictionary>

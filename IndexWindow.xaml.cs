@@ -1,4 +1,6 @@
 ﻿using Dictionary.Model;
+using System;
+using System.Windows;
 using System.Windows.Navigation;
 
 namespace Dictionary
@@ -6,12 +8,12 @@ namespace Dictionary
     /// <summary>
     /// Interaction logic for IndexWindow.xaml
     /// </summary>
-    public partial class IndexWindow : NavigationWindow
+    public partial class IndexWindow : Window
     {
         public IndexWindow()
         {
             InitializeComponent();
-            NavigationServiceModel.SetNavigationService(this.NavigationService);
+            IndexFrame.Navigate(new Uri("/View/MainPageView.xaml", UriKind.Relative));
         }
     }
 }
