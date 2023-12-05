@@ -18,6 +18,5 @@ namespace Dictionary.Model.JSON
         public string SourceLangCode { get; set; }
         public string TranslatedLangCode { get; set; }
         public string SourceParagraph { get; set; }
-        public string TranslateParagraph { get; set; }
     }
 }

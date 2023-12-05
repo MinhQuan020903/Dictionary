@@ -6,18 +6,16 @@ using System.Threading.Tasks;
 
 namespace Dictionary.Model
 {
-
-
     public class TextToSpeechAPI
     {
         // This example requires environment variables named "SPEECH_KEY" and "SPEECH_REGION"
-        static string speechKey = Environment.GetEnvironmentVariable("SPEECH_KEY");
-        static string speechRegion = Environment.GetEnvironmentVariable("SPEECH_REGION");
+        private string speechKey = Environment.GetEnvironmentVariable("SPEECH_KEY");
+        private string speechRegion = Environment.GetEnvironmentVariable("SPEECH_REGION");
 
-        static SpeechSynthesizer speechSynthesizer; // Declare a static instance
-        static bool isInitialized = false; // Track initialization status
+        private SpeechSynthesizer speechSynthesizer; // Declare a static instance
+        private bool isInitialized = false; // Track initialization status
 
-        static async Task InitializeAsync(string from, string to)
+        private async Task InitializeAsync(string from, string to)
         {
             if (!isInitialized)
             {
@@ -26,10 +24,12 @@ namespace Dictionary.Model
                 //English voice: en-US-JennyNeural
                 if (from.Equals("vi") && to.Equals("en"))
                 {
+                    speechConfig.SpeechSynthesisLanguage = "en-US";
                     speechConfig.SpeechSynthesisVoiceName = "en-US-JennyNeural";
                 }
                 else if (from.Equals("en") && to.Equals("vi"))
                 {
+                    speechConfig.SpeechSynthesisLanguage = "vi-VN";
                     speechConfig.SpeechSynthesisVoiceName = "vi-VN-HoaiMyNeural";
                 }
 
@@ -38,10 +38,10 @@ namespace Dictionary.Model
                 // Perform any additional initialization here
 
                 isInitialized = true; // Mark as initialized
+                return;
             }
         }
-
-        static void OutputSpeechSynthesisResult(SpeechSynthesisResult speechSynthesisResult, string text, ILogger<BaseViewModel> logger)
+        private void OutputSpeechSynthesisResult(SpeechSynthesisResult speechSynthesisResult, string text, ILogger<BaseViewModel> logger)
         {
             switch (speechSynthesisResult.Reason)
             {
@@ -63,7 +63,7 @@ namespace Dictionary.Model
             }
         }
 
-        public static async Task TextToSpeech(string text, string from, string to, ILogger<BaseViewModel>? logger = null)
+        public  async Task TextToSpeech(string text, string from, string to, ILogger<BaseViewModel>? logger = null)
         {
             // Initialize the speech synthesizer if not already initialized
             await InitializeAsync(from, to);

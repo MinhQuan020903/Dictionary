@@ -16,11 +16,13 @@ using System.Text;
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Forms;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Navigation;
 using Unsplasharp;
 using static System.Net.Mime.MediaTypeNames;
+using Microsoft.Extensions.Logging;
 
 namespace Dictionary.ViewModel
 {
@@ -50,8 +52,32 @@ namespace Dictionary.ViewModel
 
     public class TranslateParagraphPageViewModel : BaseViewModel
     {
+        private ILogger<TranslateParagraphPageViewModel> logger;
+        private const int maxSavedParagraphs = 20;
+
         private string _filePath = "SavedParagraph.json";
-        string _baseDirectory = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\.."));
+        private string _baseDirectory = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\.."));
+
+        private bool _isTranslating = false;
+        public bool IsTranslating
+        {
+            get => _isTranslating;
+            set
+            {
+                _isTranslating = value;
+                OnPropertyChanged(nameof(IsTranslating));
+            }
+        }
+        private bool _isSpeechListening = false;
+        public bool IsSpeechListening
+        {
+            get => _isSpeechListening;
+            set
+            {
+                _isSpeechListening = value;
+                OnPropertyChanged(nameof(IsSpeechListening));
+            }
+        }
 
         private ObservableCollection<SavedParagraph> _savedParagraphs;
 
@@ -79,8 +105,12 @@ namespace Dictionary.ViewModel
             get { return _sourceLang; }
             set
             {
-                _sourceLang = value;
-                OnPropertyChanged(nameof(SourceLang));
+                if (_sourceLang != value)
+                {
+                    _sourceLang = value;
+                    OnPropertyChanged(nameof(SourceLang));
+                    TranslateLang = value == "vi" ? "en" : "vi";
+                }
             }
         }
 
@@ -90,8 +120,12 @@ namespace Dictionary.ViewModel
             get { return _translateLang; }
             set
             {
-                _translateLang = value;
-                OnPropertyChanged(nameof(TranslateLang));
+                if (_translateLang != value)
+                {
+                    _translateLang = value;
+                    OnPropertyChanged(nameof(TranslateLang));
+                    SourceLang = value == "vi" ? "en" : "vi";
+                }
             }
         }
 
@@ -117,6 +151,13 @@ namespace Dictionary.ViewModel
         }
         public ICommand TranslateCommand { get; set; }
         public ICommand SavedParagraphsSelectionChangedCommand { get; set; }
+        public ICommand UploadParagraphCommand { get; set; }
+        public ICommand SpeakTranslateParagraphCommand { get; set; }
+        public ICommand SpeakSourceParagraphCommand { get; set; }
+        public ICommand CopySourceParagraphCommand { get; set; }
+        public ICommand CopyTranslateParagraphCommand { get; set; }
+        public ICommand SpeechToSourceTextCommand { get; set; }
+
         public TranslateParagraphPageViewModel()
         {
             LangList = new List<LanguageObject>();
@@ -124,10 +165,19 @@ namespace Dictionary.ViewModel
             LangList.Add(new LanguageObject("Tiếng Anh", "en"));
 
             SavedParagraphs = new ObservableCollection<SavedParagraph>();
-            LoadSavedParagraphs();
+            SavedParagraphs = SaveFile.LoadSavedParagraphs();
 
             TranslateCommand = new RelayCommand<object>(TranslateCommandCanExecute, TranslateCommandExecute);
-            SavedParagraphsSelectionChangedCommand = new RelayCommand<SavedParagraph>((SavedParagraph obj) => true, SavedParagraphsSelectionChangedExecute);
+            SavedParagraphsSelectionChangedCommand = new RelayCommand<SavedParagraph>((SavedParagraph obj) => true, SavedParagraphsSelectionChangedCommandExecute);
+            UploadParagraphCommand = new RelayCommand<object>(_ => true, UploadParagraphCommandExecute);
+            SpeakTranslateParagraphCommand = new RelayCommand<object>(_ => true, SpeakTranslateParagraphCommandExecute);
+            SpeakSourceParagraphCommand = new RelayCommand<object>(_ => true, SpeakSourceParagraphCommandExecute);
+            CopySourceParagraphCommand = new RelayCommand<object>(_ => true, _ => System.Windows.Clipboard.SetText(SourceParagraph));
+            CopyTranslateParagraphCommand = new RelayCommand<object>(_ => true, _ => System.Windows.Clipboard.SetText(TranslatedParagraph));
+            SpeechToSourceTextCommand = new RelayCommand<object>(_ => true, SpeechToSourceTextCommandExecute);
+
+            //Create logger object
+            logger = LoggerProvider.CreateLogger<TranslateParagraphPageViewModel>();
         }
 
         private bool TranslateCommandCanExecute(object obj)
@@ -137,13 +187,14 @@ namespace Dictionary.ViewModel
 
         private async void TranslateCommandExecute(object obj)
         {
+            IsTranslating = true;
             if (SourceParagraph == "")
             {
-                MessageBox.Show("Please enter source paragraph");
+                System.Windows.MessageBox.Show("Please enter source paragraph");
                 return;
             }
 
-            ApiResponse<string> response = await TranslateAPI.Translate(SourceParagraph, _sourceLang, _translateLang);
+            ApiResponse<string> response = await TranslateAPI.Translate(SourceParagraph, SourceLang, TranslateLang, logger);
 
             // Parse the JSON array
             JArray jsonArray = JArray.Parse(response.Data);
@@ -163,68 +214,89 @@ namespace Dictionary.ViewModel
                     {
                         // 'translatedText' now contains the value of the "text" property
                         TranslatedParagraph = textToken.ToString();
-                        SaveTranslatedParagraph();
+
+                        SavedParagraph newParagraph = new SavedParagraph()
+                        { SourceLangCode = SourceLang, SourceParagraph = SourceParagraph, TranslatedLangCode = TranslateLang };
+
+                        if (SavedParagraphs.Any(item => item.SourceParagraph == newParagraph.SourceParagraph && item.SourceLangCode == newParagraph.SourceLangCode && item.TranslatedLangCode == newParagraph.TranslatedLangCode))
+                        {
+                            IsTranslating = false;
+                            return;
+                        }
+
+                        if (SavedParagraphs.Count >= maxSavedParagraphs) { SavedParagraphs.RemoveAt(0); }
+                        SavedParagraphs.Add(newParagraph);
+
+                        SaveFile.SaveTranslatedParagraphToFile(SavedParagraphs);
                     }
                 }
             }
+            IsTranslating = false;
         }
 
-        private void SaveTranslatedParagraph()
-        {
-            SavedParagraphs.Add(new SavedParagraph() { SourceLangCode = SourceLang, SourceParagraph = SourceParagraph, TranslatedLangCode = TranslateLang, TranslateParagraph = TranslatedParagraph });
-            try
-            {
-                // Get the base directory where the application is running
-
-                // Check if the "Log" folder exists, if not, create it
-                string logFolderPath = Path.Combine(_baseDirectory, "Log");
-                if (!Directory.Exists(logFolderPath))
-                {
-                    Directory.CreateDirectory(logFolderPath);
-                }
-
-                // Construct the full file path
-                string fullFilePath = Path.Combine(logFolderPath, _filePath);
-
-                // Serialize and save translated items to a file
-                string translatedItemsJson = JsonConvert.SerializeObject(SavedParagraphs);
-                File.WriteAllText(fullFilePath, translatedItemsJson);
-
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-        }
-
-        private void LoadSavedParagraphs()
-        {
-            try
-            {
-                // Check if the "Log" folder exists, if not, create it
-                string logFolderPath = Path.Combine(_baseDirectory, "Log", _filePath);
-
-                if (File.Exists(logFolderPath))
-                {
-                    string translatedItemsJson = File.ReadAllText(logFolderPath);
-                    SavedParagraphs = new ObservableCollection<SavedParagraph>(JsonConvert.DeserializeObject<List<SavedParagraph>>(translatedItemsJson));
-                }
-                else
-                { }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-        }
-
-        public void SavedParagraphsSelectionChangedExecute(SavedParagraph selectedItem)
+        private void SavedParagraphsSelectionChangedCommandExecute(SavedParagraph selectedItem)
         {
             TranslateLang = selectedItem.TranslatedLangCode;
-            TranslatedParagraph = selectedItem.TranslateParagraph;
 
             SourceLang = selectedItem.SourceLangCode;
             SourceParagraph = selectedItem.SourceParagraph;
+
+            TranslateCommandExecute(new object());
+        }
+
+        private void UploadParagraphCommandExecute(object obj)
+        {
+            OpenFileDialog dlg = new OpenFileDialog();
+
+            dlg.InitialDirectory = "c:\\";
+
+            dlg.Filter = "Text file | *.txt";
+
+            dlg.RestoreDirectory = true;
+
+            if (dlg.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                SourceParagraph = File.ReadAllText(dlg.FileName);
+                TranslateCommandExecute(obj);
+            }
+        }
+
+        private async void SpeakTranslateParagraphCommandExecute(object obj)
+        {
+            TextToSpeechAPI textToSpeech = new TextToSpeechAPI();
+            await textToSpeech.TextToSpeech(TranslatedParagraph, SourceLang, TranslateLang, logger);
+        }
+
+        private async void SpeakSourceParagraphCommandExecute(object obj)
+        {
+            TextToSpeechAPI textToSpeech = new TextToSpeechAPI();
+            await textToSpeech.TextToSpeech(SourceParagraph, TranslateLang, SourceLang, logger);
+        }
+
+        private async void SpeechToSourceTextCommandExecute(object obj)
+        {
+            IsSpeechListening = true;
+            Task<string> speechToTextTask = SpeechToTextAPI.SpeechToText(SourceLang, logger);
+
+            // Wait for either the SpeechToText operation to complete or a timeout of 5 seconds
+            Task completedTask = await Task.WhenAny(speechToTextTask, Task.Delay(5000));
+
+            if (completedTask == speechToTextTask)
+            {
+                // SpeechToText operation completed within the timeout
+                SourceParagraph = await speechToTextTask;
+
+                if (string.IsNullOrEmpty(SourceParagraph))
+                {
+                    TranslatedParagraph = "";
+                    System.Windows.MessageBox.Show("Không nhận được giọng nói.");
+                }
+                else
+                {
+                    TranslateCommandExecute(obj);
+                }
+            }
+            IsSpeechListening = false;
         }
     }
 }

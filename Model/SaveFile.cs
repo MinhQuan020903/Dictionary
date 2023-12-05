@@ -15,16 +15,15 @@ namespace Dictionary.Model
 {
     public class SaveFile
     {
+        private static string _paragraphFilePath = "SavedParagraph.json";
+        private static string baseDirectory = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\.."));
+        private static string logFolderPath = Path.Combine(baseDirectory, "Log");
+
         private static ILoggerFactory loggerFactory;
         public static void SaveTranslatedItemsToFile(string filePath, ObservableCollection<SavedWord> SavedWords)
         {
             try
             {
-                // Get the base directory where the application is running
-
-                string baseDirectory = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\.."));
-                // Check if the "Log" folder exists, if not, create it
-                string logFolderPath = Path.Combine(baseDirectory, "Log");
                 if (!Directory.Exists(logFolderPath))
                 {
                     Directory.CreateDirectory(logFolderPath);
@@ -47,7 +46,6 @@ namespace Dictionary.Model
         {
             try
             {
-                string baseDirectory = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\.."));
                 // Check if the "Log" folder exists, if not, create it
                 string logFolderPath = Path.Combine(baseDirectory, "Log\\SavedWord.json");
 
@@ -65,6 +63,51 @@ namespace Dictionary.Model
                 Console.WriteLine(ex.Message);
             }
             return null;
+        }
+
+        public static void SaveTranslatedParagraphToFile(ObservableCollection<SavedParagraph> SavedParagraphs)
+        {
+            try
+            {
+                if (!Directory.Exists(logFolderPath))
+                {
+                    Directory.CreateDirectory(logFolderPath);
+                }
+
+                // Construct the full file path
+                string fullFilePath = Path.Combine(logFolderPath, _paragraphFilePath);
+
+                // Serialize and save translated items to a file
+                string translatedItemsJson = JsonConvert.SerializeObject(SavedParagraphs);
+                File.WriteAllText(fullFilePath, translatedItemsJson);
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+
+        public static ObservableCollection<SavedParagraph> LoadSavedParagraphs()
+        {
+            try
+            {
+                // Check if the "Log" folder exists, if not, create it
+                string logFolderPath = Path.Combine(baseDirectory, "Log", _paragraphFilePath);
+
+                if (File.Exists(logFolderPath))
+                {
+                    string translatedItemsJson = File.ReadAllText(logFolderPath);
+                    return new ObservableCollection<SavedParagraph>(JsonConvert.DeserializeObject<List<SavedParagraph>>(translatedItemsJson));
+                }
+                else
+                { }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            return new ObservableCollection<SavedParagraph>();
         }
     }
 }

@@ -22,6 +22,7 @@ namespace Dictionary.ViewModel
     public class MainPageViewModel : BaseViewModel
     {
         private ILogger<MainPageViewModel> logger;
+        private TextToSpeechAPI textToSpeech = new TextToSpeechAPI();
 
         private ObservableCollection<SavedWord> _savedWords;
 
@@ -341,7 +342,7 @@ namespace Dictionary.ViewModel
 
         private async void ButtonCommandAudioExecute(object obj)
         {
-            await TextToSpeechAPI.TextToSpeech(TranslatedText, SourceLang, TranslateLang, logger);
+            await textToSpeech.TextToSpeech(TranslatedText, SourceLang, TranslateLang, logger);
         }
 
         private bool ButtonCommandSpeechToTextCanExecute(object obj)

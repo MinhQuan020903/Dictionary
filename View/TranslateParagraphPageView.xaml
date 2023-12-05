@@ -18,12 +18,14 @@
       MaxWidth="{StaticResource ScreenWidth}"
       MaxHeight="{StaticResource ScreenHeight}"
       Background="Transparent">
+
     <Border Padding="8"
             Background="GhostWhite"
             BorderBrush="Black"
             BorderThickness="0"
             CornerRadius="15">
         <Grid>
+
             <materialDesign:Card materialDesign:ElevationAssist.Elevation="Dp0"
                                  Background="Transparent"
                                  BorderThickness="0">
@@ -38,25 +40,40 @@
                     </StackPanel>
 
                     <Grid Grid.Column="1"
-                          Margin="64 0">
+                          Margin="32 0">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="auto" />
                             </Grid.ColumnDefinitions>
 
-                            <Grid Grid.Column="0">
+                            <Grid Grid.Column="0"
+                                  Margin="0 0 32 16"
+                                  MinWidth="640">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="auto" />
+                                    <RowDefinition Height="*" />
                                     <RowDefinition Height="auto" />
-                                    <RowDefinition Height="auto" />
+                                    <RowDefinition Height="*" />
                                 </Grid.RowDefinitions>
 
-                                <StackPanel Margin="20px"
-                                            Grid.Row="0"
-                                            HorizontalAlignment="Stretch">
-                                    <Grid HorizontalAlignment="Stretch"
-                                          MaxWidth="600">
+                                <ToolBarTray Grid.Row="0"
+                                             Background="Transparent">
+                                    <ToolBar ClipToBounds="True"
+                                             Background="Transparent"
+                                             Style="{StaticResource MaterialDesignToolBar}">
+                                        <Button Command="{Binding UploadParagraphCommand}"
+                                                Content="{materialDesign:PackIcon Size=16, Kind=Upload}"
+                                                ToolTip="Tải lên văn bản"
+                                                ToolTipService.InitialShowDelay="250"
+                                                Padding="8" />
+                                    </ToolBar>
+                                </ToolBarTray>
+
+                                <DockPanel Margin="8px"
+                                           Grid.Row="1"
+                                           HorizontalAlignment="Stretch">
+                                    <Grid HorizontalAlignment="Stretch">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*" />
                                             <ColumnDefinition Width="*" />
@@ -64,6 +81,7 @@
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="auto" />
                                             <RowDefinition Height="*" />
+                                            <RowDefinition Height="auto" />
                                         </Grid.RowDefinitions>
 
                                         <ComboBox Grid.Row="0"
@@ -75,36 +93,81 @@
                                                   DisplayMemberPath="Language"
                                                   SelectedValuePath="LangCode"
                                                   SelectedValue="{Binding SourceLang, Mode=TwoWay}"
-                                                  Margin="0px 0px 0px 10px"
-                                                  SelectionChanged="ComboBox_SelectionChanged" />
-                                        <TextBox Grid.Row="1"
-                                                 Grid.ColumnSpan="2"
-                                                 MinWidth="280"
-                                                 MinHeight="80"
-                                                 VerticalAlignment="Stretch"
-                                                 Style="{StaticResource MaterialDesignOutlinedTextBox}"
-                                                 materialDesign:HintAssist.Hint="Nhập đoạn văn để dịch"
-                                                 AcceptsReturn="True"
-                                                 Text="{Binding SourceParagraph, Mode=TwoWay}"
-                                                 TextWrapping="Wrap"
-                                                 VerticalScrollBarVisibility="Auto" />
-                                    </Grid>
-                                </StackPanel>
+                                                  Margin="0px 0px 0px 10px" />
 
-                                <StackPanel Grid.Row="1">
+                                        <TextBox  Grid.Row="1"
+                                                  Grid.ColumnSpan="2"
+                                                  MinWidth="280"
+                                                  MinHeight="80"
+                                                  Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                                                  materialDesign:HintAssist.Hint="Nhập đoạn văn để dịch"
+                                                  AcceptsReturn="True"
+                                                  Text="{Binding SourceParagraph, Mode=TwoWay}"
+                                                  TextWrapping="Wrap"
+                                                  VerticalScrollBarVisibility="Auto" />
+
+                                        <StackPanel Grid.Row="2"
+                                                    Grid.Column="1"
+                                                    HorizontalAlignment="Right"
+                                                    Orientation="Horizontal"
+                                                    Margin="0 10 0 0">
+                                            <Button Command="{Binding DataContext.SpeechToSourceTextCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=Page}}"
+                                                    ToolTip="Đọc đoạn văn để dịch"
+                                                    ToolTipService.InitialShowDelay="250">
+                                                <materialDesign:PackIcon Kind="Microphone" />
+                                                <Button.Style>
+                                                    <Style TargetType="{x:Type Button}"
+                                                           BasedOn="{StaticResource MaterialDesignIconForegroundButton}">
+                                                        <Setter Property="Background"
+                                                                Value="Transparent" />
+                                                        <Setter Property="Foreground"
+                                                                Value="{DynamicResource PrimaryHueMidBrush}" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsSpeechListening}"
+                                                                         Value="True">
+                                                                <Setter Property="Background"
+                                                                        Value="{DynamicResource PrimaryHueMidBrush}" />
+                                                                <Setter Property="Foreground"
+                                                                        Value="White" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Button.Style>
+                                            </Button>
+                                            <Button Style="{StaticResource MaterialDesignIconButton}"
+                                                    Command="{Binding SpeakSourceParagraphCommand}"
+                                                    ToolTip="Nghe văn bản gốc"
+                                                    ToolTipService.InitialShowDelay="250">
+                                                <materialDesign:PackIcon Kind="VolumeHigh" />
+                                            </Button>
+                                            <Button Style="{StaticResource MaterialDesignIconButton}"
+                                                    Command="{Binding CopySourceParagraphCommand}"
+                                                    ToolTip="Sao chép"
+                                                    ToolTipService.InitialShowDelay="250">
+                                                <materialDesign:PackIcon Kind="ContentCopy" />
+                                            </Button>
+                                        </StackPanel>
+                                    </Grid>
+                                </DockPanel>
+
+                                <StackPanel Grid.Row="2"
+                                            Margin="0 0 0 20">
                                     <Button Width="150px"
                                             Height="50px"
                                             Content="Dịch"
-                                            Style="{StaticResource MaterialDesignFlatLightBgButton}"
-                                            ToolTip="MaterialDesignFlatLightButton"
-                                            Command="{Binding TranslateCommand}" />
+                                            materialDesign:ButtonProgressAssist.IsIndeterminate="True"
+                                            materialDesign:ButtonProgressAssist.IsIndicatorVisible="{Binding IsTranslating}"
+                                            Command="{Binding TranslateCommand}"
+                                            IsEnabled="{Binding Path=IsTranslating,Converter={StaticResource ReverseConverterHelper}}">
+                                    </Button>
                                 </StackPanel>
 
-                                <StackPanel Margin="20px"
-                                            Grid.Row="2"
-                                            HorizontalAlignment="Stretch">
+                                <DockPanel Margin="8px"
+                                           Grid.Row="3"
+                                           HorizontalAlignment="Stretch"
+                                           VerticalAlignment="Stretch">
                                     <Grid HorizontalAlignment="Stretch"
-                                          MaxWidth="600">
+                                          VerticalAlignment="Stretch">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*" />
                                             <ColumnDefinition Width="*" />
@@ -112,6 +175,7 @@
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="auto" />
                                             <RowDefinition Height="*" />
+                                            <RowDefinition Height="auto" />
                                         </Grid.RowDefinitions>
 
                                         <ComboBox Grid.Row="0"
@@ -124,63 +188,83 @@
                                                   SelectedValuePath="LangCode"
                                                   SelectedValue="{Binding TranslateLang, Mode=TwoWay}"
                                                   Margin="0px 0px 0px 10px" />
-                                        <TextBox Grid.Row="1"
-                                                 Grid.ColumnSpan="2"
-                                                 MinWidth="280"
-                                                 MinHeight="80"
-                                                 VerticalAlignment="Stretch"
-                                                 Style="{StaticResource MaterialDesignOutlinedTextBox}"
-                                                 materialDesign:HintAssist.Hint="Kết quả dịch"
-                                                 AcceptsReturn="True"
-                                                 Text="{Binding TranslatedParagraph, Mode=OneWay}"
-                                                 TextWrapping="Wrap"
-                                                 IsEnabled="False"
-                                                 VerticalScrollBarVisibility="Auto" />
+
+                                        <Border BorderBrush="Black"
+                                                BorderThickness="1"
+                                                Opacity="0.7"
+                                                Grid.Row="1"
+                                                Grid.ColumnSpan="2"
+                                                MinWidth="280"
+                                                MinHeight="80"
+                                                Padding="16"
+                                                CornerRadius="6">
+                                            <TextBlock materialDesign:HintAssist.Hint="Kết quả dịch"
+                                                       Text="{Binding TranslatedParagraph, Mode=OneWay}"
+                                                       TextWrapping="Wrap" />
+                                        </Border>
+
+                                        <StackPanel Grid.Row="2"
+                                                    Grid.Column="1"
+                                                    HorizontalAlignment="Right"
+                                                    Orientation="Horizontal"
+                                                    Margin="0 10 0 0">
+                                            <Button Style="{StaticResource MaterialDesignIconButton}"
+                                                    Command="{Binding SpeakTranslateParagraphCommand}"
+                                                    ToolTip="Nghe văn bản được dịch"
+                                                    ToolTipService.InitialShowDelay="250">
+                                                <materialDesign:PackIcon Kind="VolumeHigh" />
+                                            </Button>
+                                            <Button Style="{StaticResource MaterialDesignIconButton}"
+                                                    Command="{Binding CopyTranslateParagraphCommand}"
+                                                    ToolTip="Sao chép"
+                                                    ToolTipService.InitialShowDelay="250">
+                                                <materialDesign:PackIcon Kind="ContentCopy" />
+                                            </Button>
+                                        </StackPanel>
                                     </Grid>
-                                </StackPanel>
+                                </DockPanel>
                             </Grid>
 
 
                             <Grid Grid.Column="1"
-                                  MinWidth="300"
-                                  MaxWidth="300">
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="auto" />
-                                        <RowDefinition Height="*" />
-                                    </Grid.RowDefinitions>
+                                  Width="220">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="auto" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
 
-                                    <TextBlock FontSize="18"
-                                               HorizontalAlignment="Center"
-                                               Grid.Row="0"
-                                               Margin="0 0 0 10">Đoạn văn đã dịch</TextBlock>
+                                <TextBlock FontSize="18"
+                                           HorizontalAlignment="Center"
+                                           Grid.Row="0"
+                                           Margin="0 0 0 10">Đoạn văn đã dịch</TextBlock>
 
-                                    <ListBox Grid.Row="1"
-                                             Name="savedParagraphs"
-                                             HorizontalAlignment="Stretch"
-                                             VerticalAlignment="Top"
-                                             HorizontalContentAlignment="Stretch"
-                                             ItemsSource="{Binding SavedParagraphs,Mode=TwoWay}">
-                                        <i:Interaction.Triggers>
-                                            <i:EventTrigger EventName="SelectionChanged">
-                                                <i:InvokeCommandAction Command="{Binding DataContext.SavedParagraphsSelectionChangedCommand, RelativeSource={RelativeSource AncestorType=Page}}"
-                                                                       CommandParameter="{Binding ElementName=savedParagraphs, Path=SelectedItem}" />
-                                            </i:EventTrigger>
-                                        </i:Interaction.Triggers>
-                                        <ListBox.ItemTemplate>
-                                            <DataTemplate>
-                                                <Border BorderBrush="black"
-                                                        BorderThickness="0 0 0 1"
-                                                        Padding="10"
-                                                        Margin="-8">
-                                                    <TextBlock Text="{Binding SourceParagraph}"
-                                                               TextTrimming="WordEllipsis"
-                                                               HorizontalAlignment="Center" />
-                                                </Border>
-                                            </DataTemplate>
-                                        </ListBox.ItemTemplate>
-                                    </ListBox>
-                                </Grid>
+                                <ListBox Grid.Row="1"
+                                         Name="savedParagraphs"
+                                         HorizontalAlignment="Stretch"
+                                         VerticalAlignment="Top"
+                                         HorizontalContentAlignment="Stretch"
+                                         ItemsSource="{Binding SavedParagraphs,Mode=TwoWay}">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="SelectionChanged">
+                                            <i:InvokeCommandAction Command="{Binding DataContext.SavedParagraphsSelectionChangedCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                                                   CommandParameter="{Binding ElementName=savedParagraphs, Path=SelectedItem}" />
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border BorderBrush="black"
+                                                    BorderThickness="0 0 0 1"
+                                                    Padding="10"
+                                                    Margin="-8">
+                                                <TextBlock Text="{Binding SourceParagraph}"
+                                                           TextWrapping="Wrap"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           MaxHeight="38"
+                                                           HorizontalAlignment="Center" />
+                                            </Border>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
                             </Grid>
                         </Grid>
                     </Grid>
