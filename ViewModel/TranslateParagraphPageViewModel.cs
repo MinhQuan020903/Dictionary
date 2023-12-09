@@ -23,6 +23,7 @@ using System.Windows.Navigation;
 using Unsplasharp;
 using static System.Net.Mime.MediaTypeNames;
 using Microsoft.Extensions.Logging;
+using ThrottleDebounce;
 
 namespace Dictionary.ViewModel
 {
@@ -54,6 +55,7 @@ namespace Dictionary.ViewModel
     {
         private ILogger<TranslateParagraphPageViewModel> logger;
         private const int maxSavedParagraphs = 20;
+        private Action<string> debouncedFunc;
 
         private string _filePath = "SavedParagraph.json";
         private string _baseDirectory = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\.."));
@@ -136,6 +138,7 @@ namespace Dictionary.ViewModel
             set
             {
                 _sourceParagraph = value;
+                debouncedFunc(value);
                 OnPropertyChanged(nameof(SourceParagraph));
             }
         }
@@ -149,6 +152,17 @@ namespace Dictionary.ViewModel
                 OnPropertyChanged(nameof(TranslatedParagraph));
             }
         }
+        private string _grammarCheckedParagraph = "";
+        public string GrammarCheckedParagraph
+        {
+            get => _grammarCheckedParagraph;
+            set
+            {
+                _grammarCheckedParagraph = value;
+                OnPropertyChanged(nameof(GrammarCheckedParagraph));
+            }
+        }
+
         public ICommand TranslateCommand { get; set; }
         public ICommand SavedParagraphsSelectionChangedCommand { get; set; }
         public ICommand UploadParagraphCommand { get; set; }
@@ -157,6 +171,7 @@ namespace Dictionary.ViewModel
         public ICommand CopySourceParagraphCommand { get; set; }
         public ICommand CopyTranslateParagraphCommand { get; set; }
         public ICommand SpeechToSourceTextCommand { get; set; }
+        public ICommand GrammarCheckedSelectCommand { get; set; }
 
         public TranslateParagraphPageViewModel()
         {
@@ -175,9 +190,12 @@ namespace Dictionary.ViewModel
             CopySourceParagraphCommand = new RelayCommand<object>(_ => true, _ => System.Windows.Clipboard.SetText(SourceParagraph));
             CopyTranslateParagraphCommand = new RelayCommand<object>(_ => true, _ => System.Windows.Clipboard.SetText(TranslatedParagraph));
             SpeechToSourceTextCommand = new RelayCommand<object>(_ => true, SpeechToSourceTextCommandExecute);
+            GrammarCheckedSelectCommand = new RelayCommand<object>(_ => true, _ => SourceParagraph = GrammarCheckedParagraph);
 
             //Create logger object
             logger = LoggerProvider.CreateLogger<TranslateParagraphPageViewModel>();
+
+            debouncedFunc = Debouncer.Debounce((string arg) => GetGrammarCheck(arg), TimeSpan.FromMilliseconds(500), leading: false).Invoke;
         }
 
         private bool TranslateCommandCanExecute(object obj)
@@ -191,6 +209,7 @@ namespace Dictionary.ViewModel
             if (SourceParagraph == "")
             {
                 System.Windows.MessageBox.Show("Please enter source paragraph");
+                IsTranslating = false;
                 return;
             }
 
@@ -297,6 +316,22 @@ namespace Dictionary.ViewModel
                 }
             }
             IsSpeechListening = false;
+        }
+
+        private void GetGrammarCheck(string SourceParagraph)
+        {
+            if(String.IsNullOrEmpty(SourceParagraph))
+            {
+                GrammarCheckedParagraph = "";
+                return;
+            }
+
+            string value = GrammarCheckApi.PostCheckGrammar(SourceParagraph, SourceLang);
+            if (value != SourceParagraph)
+            {
+                GrammarCheckedParagraph = value;
+                return;
+            }
         }
     }
 }
