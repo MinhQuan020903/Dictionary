@@ -5,6 +5,8 @@
     <TargetFramework>net6.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
+    <ApplicationIcon>dictionary.ico</ApplicationIcon>
+    <PackageIcon>dictionary.png</PackageIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,12 +19,20 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="dictionary.ico" />
     <Content Include="Resource\Image\audio.gif">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Resource\Image\dictionary.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\Downloads\dictionary.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
