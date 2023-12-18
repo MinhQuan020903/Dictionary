@@ -262,6 +262,7 @@ namespace Dictionary.ViewModel
 
             //Create logger object
             logger = LoggerProvider.CreateLogger<MainPageViewModel>();
+            logger.LogInformation("Hello!");
 
 
             LangList = new List<LanguageObject>();
@@ -300,9 +301,12 @@ namespace Dictionary.ViewModel
             //Create logger object
             logger = LoggerProvider.CreateLogger<MainPageViewModel>();
 
+            logger.LogInformation("Hello!");
+
             LangList = new List<LanguageObject>();
             LangList.Add(new LanguageObject("Tiếng Việt", "vi"));
             LangList.Add(new LanguageObject("Tiếng Anh", "en"));
+
             //Set language for random word (default is Vietnamese)
             SourceLang = "en";
             TranslateLang = "vi";
@@ -410,6 +414,7 @@ namespace Dictionary.ViewModel
             {
                 IsLoading = Visibility.Visible;
                 TranslatedWord = new Word();
+
                 //Translate text
                 await TranslateInput(SourceLang, TranslateLang);
 
@@ -420,7 +425,6 @@ namespace Dictionary.ViewModel
                         //Get example image from text
                         GetImageOfTranslatedText()
                     );
-
                 if (IsTranslateSuccess && IsGetImageSuccess)
                 {
                     //Binding data to ListView
@@ -440,24 +444,35 @@ namespace Dictionary.ViewModel
                         Image = Image,
                         WordListView = WordListView
                     };
-
-                    // Check if there is already an item with the same Text
-                    if (!SavedWords.Any(savedWord => savedWord.Text == Text))
+                    try
                     {
-
-                        // Limit the number of saved words to 10
-                        if (SavedWords.Count >= maxSavedWords)
+                        if (SavedWords == null)
                         {
-                            // Remove the oldest item
-                            SavedWords.RemoveAt(0);
+                            SavedWords = new ObservableCollection<SavedWord>();
                         }
+                        if (!SavedWords.Any(savedWord => savedWord.Text == Text))
+                        {
 
-                        // Add the item to the ObservableCollection
-                        SavedWords.Add(translationItem);
+                            // Limit the number of saved words to 10
+                            if (SavedWords.Count >= maxSavedWords)
+                            {
+                                // Remove the oldest item
+                                SavedWords.RemoveAt(0);
+                            }
 
-                        // Save the list of translated items to a file
-                        SaveFile.SaveTranslatedItemsToFile("..\\Log\\SavedWord.json", SavedWords);
+                            // Add the item to the ObservableCollection
+                            SavedWords.Add(translationItem);
+
+                            // Save the list of translated items to a file
+                            SaveFile.SaveTranslatedItemsToFile(SavedWords);
+                        }
                     }
+                    catch (Exception ex)
+                    {
+                        logger.LogError($"Error when saving translated word to file. Error: {ex.Message}");
+                    }
+                    // Check if there is already an item with the same Text
+
                 }
                 else
                 {

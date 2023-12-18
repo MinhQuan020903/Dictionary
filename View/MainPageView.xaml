@@ -168,7 +168,7 @@
                                         Command="{Binding DataContext.ButtonTranslatorCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=Page}}"
                                         CommandParameter="{Binding Text, ElementName=tbSearch}"
                                         IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Page}}"
-                                        ToolTip="Icon">
+                                        ToolTip="Dịch">
                                         <TextBlock>Dịch từ</TextBlock>
                                     </Button>
                                 </Grid>

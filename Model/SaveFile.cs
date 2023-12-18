@@ -7,20 +7,18 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Windows;
 
 namespace Dictionary.Model
 {
     public class SaveFile
     {
         private static string _paragraphFilePath = "SavedParagraph.json";
-        private static string baseDirectory = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\.."));
+        private static string _wordFilePath = "SavedWord.json";
+        private static string baseDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "En-Vi Dictionary");
         private static string logFolderPath = Path.Combine(baseDirectory, "Log");
 
-        private static ILoggerFactory loggerFactory;
-        public static void SaveTranslatedItemsToFile(string filePath, ObservableCollection<SavedWord> SavedWords)
+        public static void SaveTranslatedItemsToFile(ObservableCollection<SavedWord> SavedWords)
         {
             try
             {
@@ -29,12 +27,12 @@ namespace Dictionary.Model
                     Directory.CreateDirectory(logFolderPath);
                 }
 
-                // Construct the full file path
-                string fullFilePath = Path.Combine(logFolderPath, filePath);
 
                 // Serialize and save translated items to a file
                 string translatedItemsJson = JsonConvert.SerializeObject(SavedWords);
-                File.WriteAllText(fullFilePath, translatedItemsJson);
+
+                string fullPath = Path.Combine(logFolderPath, _wordFilePath);
+                File.WriteAllText(fullPath, translatedItemsJson);
 
             }
             catch (Exception ex)
@@ -47,16 +45,17 @@ namespace Dictionary.Model
             try
             {
                 // Check if the "Log" folder exists, if not, create it
-                string logFolderPath = Path.Combine(baseDirectory, "Log\\SavedWord.json");
 
-                if (File.Exists(logFolderPath))
+                string fullPath = Path.Combine(logFolderPath, _wordFilePath);
+                if (File.Exists(fullPath))
                 {
-                    string translatedItemsJson = File.ReadAllText(logFolderPath);
+                    string translatedItemsJson = File.ReadAllText(fullPath);
                     return new ObservableCollection<SavedWord>(JsonConvert.DeserializeObject<List<SavedWord>>(translatedItemsJson));
 
                 }
                 else
-                { }
+                {
+                }
             }
             catch (Exception ex)
             {
@@ -74,12 +73,11 @@ namespace Dictionary.Model
                     Directory.CreateDirectory(logFolderPath);
                 }
 
-                // Construct the full file path
-                string fullFilePath = Path.Combine(logFolderPath, _paragraphFilePath);
 
+                string fullPath = Path.Combine(logFolderPath, _paragraphFilePath);
                 // Serialize and save translated items to a file
                 string translatedItemsJson = JsonConvert.SerializeObject(SavedParagraphs);
-                File.WriteAllText(fullFilePath, translatedItemsJson);
+                File.WriteAllText(fullPath, translatedItemsJson);
 
             }
             catch (Exception ex)
@@ -92,16 +90,15 @@ namespace Dictionary.Model
         {
             try
             {
-                // Check if the "Log" folder exists, if not, create it
-                string logFolderPath = Path.Combine(baseDirectory, "Log", _paragraphFilePath);
-
-                if (File.Exists(logFolderPath))
+                string fullPath = Path.Combine(logFolderPath, _paragraphFilePath);
+                if (File.Exists(fullPath))
                 {
-                    string translatedItemsJson = File.ReadAllText(logFolderPath);
+                    string translatedItemsJson = File.ReadAllText(fullPath);
                     return new ObservableCollection<SavedParagraph>(JsonConvert.DeserializeObject<List<SavedParagraph>>(translatedItemsJson));
                 }
                 else
-                { }
+                {
+                }
             }
             catch (Exception ex)
             {

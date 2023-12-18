@@ -3,6 +3,7 @@ using Microsoft.CognitiveServices.Speech;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace Dictionary.Model
 {
@@ -13,33 +14,24 @@ namespace Dictionary.Model
         private string speechRegion = Environment.GetEnvironmentVariable("SPEECH_REGION");
 
         private SpeechSynthesizer speechSynthesizer; // Declare a static instance
-        private bool isInitialized = false; // Track initialization status
 
         private async Task InitializeAsync(string from, string to)
         {
-            if (!isInitialized)
+            var speechConfig = SpeechConfig.FromSubscription(speechKey, speechRegion);
+            //Vietnamese voice: vi-VN-HoaiMyNeural
+            //English voice: en-US-JennyNeural
+            if (from.Equals("vi") && to.Equals("en"))
             {
-                var speechConfig = SpeechConfig.FromSubscription(speechKey, speechRegion);
-                //Vietnamese voice: vi-VN-HoaiMyNeural
-                //English voice: en-US-JennyNeural
-                if (from.Equals("vi") && to.Equals("en"))
-                {
-                    speechConfig.SpeechSynthesisLanguage = "en-US";
-                    speechConfig.SpeechSynthesisVoiceName = "en-US-JennyNeural";
-                }
-                else if (from.Equals("en") && to.Equals("vi"))
-                {
-                    speechConfig.SpeechSynthesisLanguage = "vi-VN";
-                    speechConfig.SpeechSynthesisVoiceName = "vi-VN-HoaiMyNeural";
-                }
-
-                speechSynthesizer = new SpeechSynthesizer(speechConfig);
-
-                // Perform any additional initialization here
-
-                isInitialized = true; // Mark as initialized
-                return;
+                speechConfig.SpeechSynthesisLanguage = "en-US";
+                speechConfig.SpeechSynthesisVoiceName = "en-US-JennyNeural";
             }
+            else if (from.Equals("en") && to.Equals("vi"))
+            {
+                speechConfig.SpeechSynthesisLanguage = "vi-VN";
+                speechConfig.SpeechSynthesisVoiceName = "vi-VN-HoaiMyNeural";
+            }
+
+            speechSynthesizer = new SpeechSynthesizer(speechConfig);
         }
         private void OutputSpeechSynthesisResult(SpeechSynthesisResult speechSynthesisResult, string text, ILogger<BaseViewModel> logger)
         {
@@ -63,7 +55,7 @@ namespace Dictionary.Model
             }
         }
 
-        public  async Task TextToSpeech(string text, string from, string to, ILogger<BaseViewModel>? logger = null)
+        public async Task TextToSpeech(string text, string from, string to, ILogger<BaseViewModel>? logger = null)
         {
             // Initialize the speech synthesizer if not already initialized
             await InitializeAsync(from, to);
