@@ -1,14 +1,1 @@
-<?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
-  <channel>
-    <title>Application</title>
-    <language>en</language>
-    <item>
-      <title>Application 1.0.2</title>
-      <pubDate>Tue, 26 Dec 2023 00:30:21 +07:00</pubDate>
-      <sparkle:version>1.0.2</sparkle:version>
-      <sparkle:shortVersionString>1.0</sparkle:shortVersionString>
-      <enclosure url="https://github.com/MinhQuan020903/Dictionary/releases/tag/1.0.2/Setup.exe" sparkle:version="1.0.2" sparkle:shortVersionString="1.0" length="60265959" sparkle:os="windows" type="application/octet-stream" sparkle:criticalUpdate="false" sparkle:signature="ajTs/SjYidZpxytocFI8jMYhmEaf3ekO+Zit4bEKU9U281ZFgeEqH6iREajq2nLmq0Fgppu8/lUICIPg0PXMDw==" />
-    </item>
-  </channel>
-</rss>
+<?xml version="1.0" encoding="utf-8"?><rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle"><channel><title>Application</title><description>Most recent changes with links to updates</description><language>en</language><item><title>Application 1.0.2</title><pubDate>Tue, 26 Dec 2023 01:00:17 +07:00</pubDate><sparkle:version>1.0.2</sparkle:version><sparkle:shortVersionString>1.0</sparkle:shortVersionString><enclosure url="1.0.2.exe" sparkle:version="1.0.2" sparkle:shortVersionString="1.0" length="60265959" sparkle:os="windows" type="application/octet-stream" sparkle:criticalUpdate="false" sparkle:signature="ajTs/SjYidZpxytocFI8jMYhmEaf3ekO+Zit4bEKU9U281ZFgeEqH6iREajq2nLmq0Fgppu8/lUICIPg0PXMDw==" /></item></channel></rss>
