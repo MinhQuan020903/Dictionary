@@ -1,1 +1,2 @@
-[Download Link](https://uithcm-my.sharepoint.com/:u:/g/personal/21522488_ms_uit_edu_vn/EeFKRchnHRJFg8Q0iyz1KTIBn1w4rutFczVUlborPvmUgw?e=4rff9E)
+Please download these keys below into the root directory of this solution.
+[NetSparkle Pub and Private key](https://gist.github.com/AkiraNoob/a26546909ae83cca31c361484c1dbb4a)
