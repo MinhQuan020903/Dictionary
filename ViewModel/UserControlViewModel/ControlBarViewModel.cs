@@ -3,7 +3,9 @@ using NetSparkleUpdater.Enums;
 using NetSparkleUpdater.SignatureVerifiers;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,6 +19,8 @@ namespace Dictionary.ViewModel.UserControlViewModel
     {
 
         private SparkleUpdater _sparkle;
+        private static string baseDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "En-Vi Dictionary");
+        private static string logFolderPath = Path.Combine(baseDirectory, "Update");
 
         #region commands
 
@@ -37,9 +41,10 @@ namespace Dictionary.ViewModel.UserControlViewModel
 )
             {
                 UIFactory = new NetSparkleUpdater.UI.WPF.UIFactory(), // or null or choose some other UI factory or build your own!
-                RelaunchAfterUpdate = true, // default is false; set to true if you want your app to restart after updating (keep as false if your installer will start your app for you)
-                CustomInstallerArguments = "", // set if you want your installer to get some command-line args
-                ShowsUIOnMainThread = true, // required on Avalonia, preferred on WPF/WinForms
+                RestartExecutablePath = logFolderPath,
+                TmpDownloadFilePath = logFolderPath,
+                CheckServerFileName = false,
+                RestartExecutableName = "Setup.exe"
             };
             _sparkle.StartLoop(true, true); // `true` to run an initial check online -- only call StartLoop once for a given SparkleUpdater instance!
 
@@ -61,7 +66,7 @@ namespace Dictionary.ViewModel.UserControlViewModel
 
             GetUpdateCommand = new RelayCommand<UserControl>((p) => { return p == null ? false : true; }, async (p) =>
             {
-               await _sparkle.CheckForUpdatesAtUserRequest();
+                await _sparkle.CheckForUpdatesAtUserRequest();
             });
 
             MaximizeWindowCommand = new RelayCommand<UserControl>((p) => { return p == null ? false : true; }, (p) =>
