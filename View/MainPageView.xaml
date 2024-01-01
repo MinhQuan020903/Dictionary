@@ -160,7 +160,7 @@
                                         Foreground="White"
                                         IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
                                         Style="{StaticResource MaterialDesignFloatingActionMiniLightButton}"
-                                        ToolTip="Icon" />
+                                        ToolTip="Ghi âm" />
 
                                     <Button
                                         Grid.Column="2"
@@ -288,7 +288,7 @@
                                                         Foreground="White"
                                                         IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
                                                         Style="{StaticResource MaterialDesignFloatingActionMiniLightButton}"
-                                                        ToolTip="Icon" />
+                                                        ToolTip="Phát âm" />
 
                                                 </StackPanel>
                                                 <TextBlock
