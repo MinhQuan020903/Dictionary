@@ -406,7 +406,7 @@ namespace Dictionary.ViewModel
             {
                 MessageBox.Show("Vui lòng nhập từ!");
             }
-            if (SourceLang == TranslateLang)
+            else if (SourceLang == TranslateLang)
             {
                 MessageBox.Show("Vui lòng chọn hai ngôn ngữ khác nhau!");
             }
