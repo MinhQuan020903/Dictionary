@@ -7,8 +7,8 @@
     <UseWPF>true</UseWPF>
     <ApplicationIcon>dictionary.ico</ApplicationIcon>
     <PackageIcon>dictionary.png</PackageIcon>
-    <FileVersion>1.0.3</FileVersion>
-    <AssemblyVersion>1.0.3</AssemblyVersion>
+    <FileVersion>1.0.4</FileVersion>
+    <AssemblyVersion>1.0.4</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
